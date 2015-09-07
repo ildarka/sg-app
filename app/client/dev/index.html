@@ -1,0 +1,160 @@
+<html ng-app="app">
+<head>
+  <meta charset="utf-8" />
+</head>
+<style>
+  body {margin:2em}
+  
+  .clearfix:after {
+       visibility: hidden;
+       display: block;
+       font-size: 0;
+       content: " ";
+       clear: both;
+       height: 0;
+       }
+  .clearfix { display: inline-block; }
+  /* start commented backslash hack \*/
+  * html .clearfix { height: 1%; }
+  .clearfix { display: block; }
+  
+  hr {
+    height: 1px; 
+    border: none;
+    margin: 1em 0;
+    border-top:solid #ccc 1px;
+    background: none;
+  }
+  aside {
+    float: left;
+    width: 25%;
+    min-width: 200px;
+    margin-right: 3em;
+  }
+  aside ul {
+    margin:0;
+    padding:0;
+  }
+  aside li {list-style-type: none; padding: .3em 0}
+  aside cite {
+    display:block;
+    padding:.5em 0;
+  }
+  
+  .login label, .login input {display: block}
+  .login input {margin-bottom:1em;}
+  
+  main {float:left; width:60%}
+  .method {margin-bottom: 1em; padding-left:4em}
+  .params, .response {float:left; width:45%; min-wirh:300px; margin-right:2em}
+  </style>
+<body ng-controller="appCtrl">
+  <aside>
+    <h1>API</h1>
+    <ul>
+      <li><a href="#">auth</a></li>
+      <li><a href="#">users</a></li>
+      <li><a href="#">agg</a></li>
+    </ul>  
+    <hr />
+    <a href="http://localhost:8080" target="_blank">RethinkDB</a>
+    <cite>
+      Если недоступно, запустите из консоли ./rethinkdb
+    </cite>
+  </aside>
+  <main>
+    <article ng-if="!authorized">
+      <form class="login" onSubmit="auth.login()">
+        <label>Пользователь</label>
+        <input name="username" />
+        <label>Пароль</label>
+        <input name="password" type="password" />
+        <input type="submit" value="Отправить" />
+      </form>
+      <ul>
+        <li ng-repeat="(key, val) in config" ng-if="key!='api'">{{key}}: {{val}}</li>
+      </ul>
+      
+    </article>
+
+    <article class="clearfix" ng-repeat="(model, vmodel) in config.api">
+      <h1>{{model | uppercase}}</h1>
+          <div class="method clearfix" ng-repeat="(method, vmethod) in vmodel.methods">
+            <div>
+              <a href="#" class="pseudo-link">{{method}}</a> <button ng-click="api(model,method)">Попробовать</button>
+            </div>
+            <div class="params" ng-if="vmethod.params">
+              Параметры:
+              <ul>
+                <li ng-repeat="(param, type) in vmethod.params">{{param}}: {{type}}</li>
+              </ul>
+            </div>
+            <div class="params" ng-if="vmethod.response">
+              Ответ:
+              <ul>
+                <li ng-repeat="(param, type) in vmethod.response">{{param}}: {{type}}</li>
+              </ul>
+            </div>
+          </div>  
+    </article>  
+
+    
+  </main>
+</body>
+  
+  <script src="../bower_components/angularjs/angular.js"></script>
+  <script src="socket.io.js"></script>
+  <script>
+
+    var app = angular.module("app",[]);
+
+    app.controller("appCtrl", function($scope, $filter, $http) {
+      
+      $scope.socketid = 1;
+      
+      function socketinit(uri) {
+        $scope.socket = io(uri);
+        
+        $scope.socket.on('xxx', function(data) {
+            console.log('←', data);
+        });
+        
+        $scope.socket.on(function(data) {
+            console.log('←', data);
+            socket.emit('my other event', { my: 'data' });
+        });
+      }
+      
+      function jsonrpc(method, data) {
+        var rpc = {"jsonrpc": "2.0", "method": method, "id": $scope.socketid++};
+        if (data) rpc.params = data;
+        return rpc;
+      }
+      
+      $scope.api = function(model, method, data) {
+        var methodname = model + '.' + method;
+        var rpc = jsonrpc(methodname, data);
+        console.log(rpc);
+        $scope.socket.emit(methodname, JSON.stringify(rpc));
+      }
+      
+      $http.get('../config.json').then(function(res){
+        $scope.config = res.data;                
+        socketinit('http://localhost:3000');
+      });
+      
+      $scope.autorized = false;
+      
+    });
+ 
+  
+    /*  
+  var socket = io.connect('http://localhost:3000');
+  socket.on('news', function (data) {
+    console.log(data);
+    socket.emit('my other event', { my: 'data' });
+  });
+  */
+    
+  </script>
+</html>

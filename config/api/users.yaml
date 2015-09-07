@@ -1,0 +1,59 @@
+description: Basic users model
+
+roles:
+  user: Пользователь
+  superadmin: Администратор
+    
+  aggregator.user: Доступ к агрегаторам
+  aggregator.admin: Администратор агрегаторов
+
+model:
+  _id: string
+  _date: date
+  name: string
+  password: string
+  state: boolean
+  role: string
+
+defaults:
+  _date: 0
+  name: admin
+  password: 0000
+  state: true
+  role: superadmin
+    
+methods:
+  get:
+    response:
+      _id: string
+      _date: date
+      name: string
+      state: boolean
+      role: string
+    access: superadmin
+
+  subscribe:
+    access: superadmin
+
+  add:
+    params: {"$ref": "#api/users/model"}
+    access: superadmin
+
+  update:
+    params: {"$ref": "#api/users/model"}
+    access: superadmin
+
+  changepassword:
+    params:
+      _id: string
+      password: string
+    access: superadmin
+
+  remove:
+    params:
+      _id: string
+    access: superadmin
+
+  register:
+    params: {"$ref": "#api/users/model"}
+

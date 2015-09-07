@@ -1,0 +1,55 @@
+description: Aggregators
+
+roles:
+  read:
+    superdmin
+    aggregators.admin    
+    aggregators.user
+  write:
+    superdmin
+    aggregators.admin
+
+model:
+  _id: string
+  _date: date
+  sn: string
+  description: string
+  license: array
+
+license:
+  _id: string
+  _date: date
+  ports: number
+  mpls: boolean
+  mirror: boolean
+  filename: string
+
+methods:
+  get:
+    access: {"$ref": "#agg/roles/read"}
+
+  subscribe:
+    access: {"$ref": "#agg/roles/read"}
+
+  add:
+    params: {"$ref": "#agg/model"}
+    access: {"$ref": "#agg/roles/write"}
+
+  update:
+    params: {"$ref": "#agg/model"}
+    access: {"$ref": "#agg/roles/write"}
+
+  remove:
+    params:
+      _id: string
+    access: {"$ref": "#agg/roles/write"}
+
+  licenseadd:
+    params: {"$ref": "#agg/license"}
+    access: {"$ref": "#agg/roles/write"}
+
+  licenseremove:
+    params: 
+      index: string
+    access: {"$ref": "#agg/roles/write"}
+

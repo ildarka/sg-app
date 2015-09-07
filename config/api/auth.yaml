@@ -1,0 +1,13 @@
+description: User password authetification
+
+methods:
+  login:
+    params:
+      username: string
+      password: string
+    response:
+      token: string
+    
+  logout:
+    params:
+      token: string

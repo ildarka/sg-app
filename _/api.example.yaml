@@ -1,0 +1,9 @@
+#SGAML
+
+title: Basic API
+baseUri: ws://localhost/{version}
+version: v1
+
+@import api/users.yaml
+
+

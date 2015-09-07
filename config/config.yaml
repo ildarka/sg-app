@@ -1,0 +1,10 @@
+#Config
+
+title: Aggregator API
+baseUri: ws://localhost
+port: 3000
+
+api:
+  auth: !include api/auth.yaml
+  users: !include api/users.yaml
+  agg: !include api/agg.yaml

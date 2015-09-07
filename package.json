@@ -1,0 +1,22 @@
+{
+  "name": "sg-app",
+  "version": "0.2.1",
+  "description": "",
+  "main": "server/server.js",
+  "dependencies": {
+    "express": "^4.2.0"
+  },
+  "devDependencies": {
+    "tiny-lr": "0.0.5"
+  },
+  "repository": {
+    "type": "git",
+    "url": "ssh://gerrit.signaltec.ru:29418/pussy_face"
+  },
+  "scripts": {
+    "build": "node build.js",
+    "test": "gulp test --test"
+  },
+  "author": "Signaltech",
+  "license": "All Rights Reserved"
+}

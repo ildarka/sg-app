@@ -1,0 +1,5 @@
+{
+  "title": "Basic API",
+  "baseUri": "ws://localhost:3000/api",
+  "auth": {"$ref": "file://api/auth.json"}
+}
