@@ -64,6 +64,13 @@ var {{method}} = function(sgapp) {
       sgapp.send('Registered');
     });
   }
+  {{#if is.login}}
+  if (!sgapp.errors) {
+      sgapp.db.users.login([sgapp.params.username, sgapp.params.password],function(err, res) {
+        sgapp.send(res);
+      });
+    }
+  }
   {{else}}
   if (!sgapp.errors) {
     //Put your code here
