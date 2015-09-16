@@ -4,14 +4,18 @@
   "description": "",
   "main": "server/server.js",
   "dependencies": {
-    "express": "^4.2.0"
+    "express": "^4.13.3",
+    "handlebars": "^4.0.2",
+    "js-yaml": "^3.4.2",
+    "json-rpc-ws": "^1.0.1",
+    "massive": "^2.0.9"
   },
   "devDependencies": {
     "tiny-lr": "0.0.5"
   },
   "repository": {
     "type": "git",
-    "url": "ssh://gerrit.signaltec.ru:29418/pussy_face"
+    "url": ""
   },
   "scripts": {
     "build": "node build.js",

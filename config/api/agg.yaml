@@ -26,30 +26,27 @@ license:
 
 methods:
   get:
-    access: {"$ref": "#agg/roles/read"}
-
-  subscribe:
-    access: {"$ref": "#agg/roles/read"}
+    access: $ref roles/read
 
   add:
-    params: {"$ref": "#agg/model"}
-    access: {"$ref": "#agg/roles/write"}
+    params: $ref model
+    access: $ref roles/write
 
   update:
-    params: {"$ref": "#agg/model"}
-    access: {"$ref": "#agg/roles/write"}
+    params: $ref model
+    access: $ref roles/write
 
   remove:
     params:
       _id: string
-    access: {"$ref": "#agg/roles/write"}
+    access: $ref roles/write
 
   licenseadd:
-    params: {"$ref": "#agg/license"}
-    access: {"$ref": "#agg/roles/write"}
+    params: $ref license
+    access: $ref roles/write
 
   licenseremove:
     params: 
       index: string
-    access: {"$ref": "#agg/roles/write"}
+    access: $ref roles/write
 

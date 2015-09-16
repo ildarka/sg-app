@@ -1,66 +1,44 @@
-# sg-app. Тезисы
+# sg-app
+
+TODO: Описание …
+Принципы
+
+## TODO Client
++ Заменить в sega2 fontawesome на materialdesignicons
++ Рефакторинг клиентского скрипта api, для поддержки реконнектов
++ Добавить проверку перед отправкой (невалидный JSON)
+
++ Добивить таску с вотчером за папками build-tasks и config. Действие — ребилд и рестарт приложения
+
++ Проверить адекватность remove
+
++ Добавить token inject 
+
++ Механизм подписки: Subscribe, event + notification
+
++ Хранимка для register и login
+
+
+
+## API first
++ Описание API ./config/api/*.yaml
++ Генерация кода (серверный + клиентский API) ./build-tasks/codegen-templates
++ Live API testing http://localhost:3000/dev
+
+## Транспорт
+JSONRPC2 over Websockets.
+npm jsonrpc-ws
 
 ## Данные
-+ immutable
-+ mutable
-
-## Механизм подписки
-+ Postgres: (Notification + message) при подписке на всю коллекцию.
-changes() = Notification + (filter thru query) + message.
-onAppend → message
-message, for subscribtions -> filter(shema, message)
-  get old_value
-  get new_value
-  compare new_value, old_value if changed => update message
-
-+ RethinkDB: .changes()
-+ Полная синхронизация моделей (для маллых данных)
-+ Реализация на курсорах
-
-## Подписка на часть данных
-+ Имеет смысл при большом количестве данных
-+ Сложность при изменяемых данных
-
-
-## Синхронизация JS Model ←→ Server model
-+ PouchDB + CouchDB (Нет возможности синхронизировать часть данных)
-+ Модели в памяти и маппинг в базу
-+ RethinkDB + changes() позволяет синхронизировать часть данных в напрвлении sever → client
-+ Swarm. Пока нет маппинга в базу, долгое время был мёртв
-+ ShareJS. Слабо развивается
-
-## Текстовые поиск по всем моделям (нужен только когда данных много)
-+ Postgresql — tsvector, fuzzy strmatch, trigramm index
-+ Elasticserach. Дублирование данных
-+ RethinkDB + Elasticserach river. Лишняя сущность
+Данные храняться в PostgreSQL в виде jsonb (PostgreSQL v. > 9.4).
+Для работы с базой используется библиотека Рона Коннери massive.js
 
 ## Сборка без gulp
 Использовать чистый npm
-
-## ES6
-es6to5 || babel
 
 ## Стили
 LESS. Sega2. Линтеры + CSSComb
 
 ## Компонентный подход
-AngularJS components — текущий подход || React
+AngularJS components — текущий подход
 
-## Транспорт
-SocketIO || Native Websockets
-
-## Сервер
-Express || Koa - проблемы с обёртками
-
-## Одни и те же данные на сервере и клиенте
-NodeJS
-
-## API
-+ JsonRPC2 + token
-+ Описание API. JSON Schema || Swagger || Raml 
-+ Генерация кода (серверный + клиентский API)
-
-## Rights checker + model
-Restricted access to models
-
-## Выделенный модуль аутентификации

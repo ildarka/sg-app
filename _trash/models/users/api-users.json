@@ -1,0 +1,63 @@
+{
+  "users": {
+    "description":"Users model",
+    "type":"description",
+    "schema":"mutable",
+    "size":"small",
+    "rights": {
+      "read": [],
+      "write": ["admin"]
+    }
+  },
+  "get": {
+    "description":"Get user",
+    "type":"method",
+    "returns":"json",
+    "params":[{
+      "name":"id",
+      "type":"number"
+    }]
+  },
+  
+
+# Users model
+  mode: mutable, subscribe (dont need), small (dont need in rethinkDB)
+
+  @import session;
+  @import auth;
+  
+  @model:
+    id: number
+    name: string
+    password: string
+    role: string
+  
+  @auth.authentificated: ->
+    return auth.auth();
+  
+  @session.self:
+    return session.id == auth.id;
+  
+  api:
+    users.subscribe:
+      returns: @model
+      restricted: @registered
+      filter: !password
+
+    users.add:
+      params: @model
+      restricted: admin 
+
+    users.edit:
+      params: @model
+      restricted: admin 
+  
+    users.switch
+      params: 
+        id: @model.id
+      restricted: admin 
+  
+    users.changepass
+      params: 
+        id: @model.id
+      restricted: @self
