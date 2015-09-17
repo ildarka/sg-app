@@ -7,7 +7,7 @@
   
 <body ng-controller="appCtrl">
   <main class="paper">
-    <article ng-show = "!authorized">
+    <article ng-show = "!autorized">
 
       <form class="login" ng-submit="login()">
         <label>Пользователь</label>
@@ -20,6 +20,10 @@
       </ul>
       
     </article>
+
+    <p ng-show = "autorized">
+      <span style="margin-right:20px">Log On as {{me.username}}. Token: {{me.token}}</span> <a ng-click="logout()">logout</a>
+    </p>
     
     <span class="tap" ng-class="{'-active': expand}"><a ng-click="expand=!expand">Expand all</a></span> 
     <span class="tap" ng-class="{'-active': forms}"><a ng-click="forms=!forms">Show forms</a></span> 
@@ -71,6 +75,7 @@
 </body>
   
 <script src="../bower_components/angularjs/angular.js"></script>
+<script src="../bower_components/ngstorage/ngStorage.min.js"></script>
 
 <script src="../apiSchema.js">;</script>
 <script src="dev.js"></script>

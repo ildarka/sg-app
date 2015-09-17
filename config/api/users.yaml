@@ -33,6 +33,18 @@ methods:
 
     access: superadmin
 
+  login:
+    params:
+      username: string
+      password: string
+    response:
+      token: string
+      user: $ref model
+    
+  logout:
+    params:
+      token: string
+
   update:
     params: $ref model
     access: superadmin

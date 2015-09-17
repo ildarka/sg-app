@@ -10,14 +10,14 @@ roles:
     aggregators.admin
 
 model:
-  _id: string
+  id: string
   _date: date
   sn: string
   description: string
   license: array
 
 license:
-  _id: string
+  id: string
   _date: date
   ports: number
   mpls: boolean

@@ -1,7 +1,7 @@
 
-    var app = angular.module("app",[]);
+    var app = angular.module("app",['ngStorage']);
 
-    app.controller("appCtrl", function($scope, $filter, $http, $timeout, api) {
+    app.controller("appCtrl", function($scope, $filter, $http, $timeout, $localStorage, api) {
       
       $scope.apiSchema = apiSchema;
       $scope.api = api('ws://localhost:3001');
@@ -27,15 +27,17 @@
           var p = (params) ? JSON.parse(params) : null;
           var start = new Date();
           vmethod.error = false;
+
           $scope.api(method, p, function(err, result) {
-            $scope.$apply(function() {
+
+              console.log('callback', params, method);
               var elapsed = new Date() - start;
               vmethod._elapsed = elapsed;
               vmethod._inprogress = false;
               
               vmethod._result = (err && typeof result === 'object') ? JSON.stringify(result, null, 4) : result;
               vmethod._error = (err && typeof err === 'object') ? JSON.stringify(err, null, 4) : err;
-            });
+
           });
         } catch(e) {
           vmethod._jsonerror = true;
@@ -48,16 +50,38 @@
       };
       
       $scope.login = function() {
-        console.log(22);
-        $scope.api('users.login', [$scope.username, $scope.password], function(res) {
-          console.log('LOGIN', res);
+        $scope.api('users.login', {'username': $scope.username, 'password': $scope.password}, function(err, res) {
+            $scope.autorized = true;
+            $localStorage.me = res;
+            $scope.me = res;
+        });
+      };      
+
+      
+      $scope.logout = function() {
+        $scope.api('users.logout', {'token': $localStorage.me.token}, function(err, res) {
+            $scope.autorized = false;
+            $localStorage.me = null;
+            $scope.me = null;
         });
       };      
       
-      $scope.api('mirror', ['a param', 'another param']);
-      
     });
 
+
+    // Safe Apply
+    angular.module('app').run(['$rootScope', function($rootScope) {
+            $rootScope.safeApply = function(fn) {
+                var phase = this.$root.$$phase;
+                if(phase == '$apply' || phase == '$digest') {
+                    if(fn && (typeof(fn) === 'function')) {
+                        fn();
+                    }
+                } else {
+                    this.$apply(fn);
+                }
+            };
+    }]);
 
     
     // filters $ directives
@@ -98,4 +122,4 @@
             attr.$set("ngTrim", "false");
         }
     };
-}]);
+    }]);

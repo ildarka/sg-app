@@ -1,109 +1,96 @@
 app.factory('api', function($rootScope, $localStorage) {
+  var ws, ws_state = [
+      "СОЕДИНЕНИЕ... [соединение ещё не было установлено]",
+      "СОКЕТ ОТКРЫТ [соединение установлено, и возможен обмен данными]",
+      "ЗАКРЫТИЕ... [идёт процедура закрытия сокета]",
+      "ЗАКРЫТО [соединение закрыто или не может быть открыто]"
+  ];
   
-  function jsonrpc2() {
-    var id = 1;
-    return {
-      serialize: function (method, params) {
+  // JSONRPC2 errors, from http://www.jsonrpc.org/specification
+  var PARSE_ERROR = -32700;
+  var INVALID_REQUEST = -32600;
+  var METHOD_NOT_FOUND = -32601;
+  var INVALID_PARAMS = -32602;
+  var INTERNAL_ERROR = -32603;
 
-        if (!method) {
-          console.error('No method in request');
-        }
+  // JSONRPC2 custom errors.
+  var LOGIN_FAILED = -32000;
+  var UNAUTHORIZED = -32001;
+  var FORBIDDEN = -32002;
+  var USER_DUPLICATE = -32003;
+  var GROUP_DUPLICATE = -32004;
+  var USER_NOT_FOUND = -32005;
+  var GROUP_NOT_FOUND = -32006;
+  var OLD_PASSWORD_INCORRECT = -32007;
+  var UNKNOWN_GROUP = -32008;
+  var RULE_DUPLICATE = -32009;
+  var RULE_NOT_FOUND = -32010;
+  var RULES_GROUP_DUPLICATE = -32011;
+  var RULES_GROUP_NOT_FOUND = -32012;
+  var SESSION_DUPLICATE = -32013;
+  var SESSION_NOT_FOUND = -32014;
+  var QUERY_NOT_FOUND = -32015;
+  var DEVICE_DUPLICATE_IP = -32016;
+  var DEVICE_DUPLICATE_NAME = -32017;
+  var DEVICE_NOT_FOUND = -32018;
+  var UNKNOW_RECORD = -32019;
+  var BAD_REQUEST = -32020;
+  var MISS_CONFIGURATION = -32021;
 
-        var o = {
-          method: method,
-          id: id++,
-          jsonrpc: '2.0',
-          params: params
-        };
+  $rootScope.$on('$routeChangeSuccess', function(scope, next, current) {
+    // Отменить все коллбеки
+  });
 
-        return o;
-      },
 
-      parse: function(data) {
-        var o;
-
-        if (typeof data === 'string') {
-          try {
-            o = JSON.parse(data);
-          } catch(e) {
-            console.error(e);
-          }
-        }
-
-        if (o.error) {
-          console.error(o.error);
-        }
-
-        return o;
+function jsonrpc2() {
+  var id = 0;
+  return {
+    serialize: function (method, params) {
+      
+      if (!method) {
+        console.error('No method in request');
       }
+      
+      var o = {
+        method: method,
+        id: id++,
+        jsonrpc: '2.0',
+        params: params
+      };
+      
+      return o;
+    },
+    
+    parse: function(data) {
+      var o;
+    
+      if (typeof data === 'string') {
+        try {
+          o = JSON.parse(data);
+        } catch(e) {
+          console.error(e);
+        }
+      }
+      
+      if (o.error) {
+        console.error(o.error);
+      }
+      
+      return o;
     }
   }
-  
-  var ws, reconnect, ping, connectStr;
+}
+
+function WSS(connection) {
+  var ws, reconnect, ping;
 
   var reconnectTimeout = 3000;
   var pingTimeout = 1000;
   var state = false;
   
-  var tryTimeout = 100;
-  var cbks = {};
-  var jsonrpc = jsonrpc2();  
-  
-  
-  $rootScope.$on('$routeChangeSuccess', function(scope, next, current) {
-    // Отменить все коллбеки
-  });
-
   function connect() {
-    
-    ws = new WebSocket(connectStr);
-    
-    if (ws) {
-      ws.onopen = function() {
-        state = true;
-        console.log('Websocket open');
-        
-        if (reconnect) clearTimeout(reconnect);
-        
-        if (!ping) {
-          ping = setInterval(function() {
-            ws.send('ping');
-          }, pingTimeout);
-        }
-      };
+    ws = new WebSocket(connection);
 
-      ws.onclose = function() { 
-        state = false;
-        console.log('Connection closed');
-        if (ping) clearInterval(ping);
-        reconnect = setTimeout(function() {connect();}, reconnectTimeout);
-      };
-
-      ws.onerror = function(d) { 
-        console.error("Ошибка сокета " + d); 
-      };
-      
-      ws.onmessage = function(e) {
-        var data = jsonrpc.parse(e.data);
-        console.log('←', JSON.stringify(data));
-        if (typeof data.id != 'undefined' && typeof cbks[data.id] === 'function') {
-          $rootScope.safeApply(function() {
-            cbks[data.id](data.error, data.result);
-            cbks[data.id] = null;
-          });
-        }
-      };
-
-
-    } else {
-      reconnect = setTimeout(function() {
-        connect();
-      }, reconnectTimeout);
-    }
-  }
-  
-
-/*  
     var WSObj = {
       ws: ws,
       ready: function() {
@@ -119,48 +106,87 @@ app.factory('api', function($rootScope, $localStorage) {
         };
       }
     };
-  */
-  
- 
-  return function init(connection) {
     
-    connectStr = connection;
-    connect();
-    
-    return function api(method, params, cbk) {
-        if (state) {
-          console.log('z', params);
-
-          if ($localStorage.me && $localStorage.me.token) {
-            params = params || {};
-            params.token = $localStorage.me.token;
-          }
-
-          var c = jsonrpc.serialize(method, params);
-          if (typeof cbk === 'function') {
-            cbks[c.id] = cbk;
-          }
-          
-          console.log('→', JSON.stringify(c));
-          ws.send(JSON.stringify(c));
-
-        } else {
-          setTimeout(function() {
-            api(params, method, cbk);
-          }, tryTimeout);
+    if (ws) {
+      ws.onopen = function() {
+        state = true;
+        console.log('Websocket open');
+        
+        if (reconnect) clearInterval(reconnect);
+        
+        if (!ping) {
+          ping = setInterval(function() {
+            ws.send('ping');
+          }, pingTimeout);
         }
-    };
+      };
+
+      ws.onerror = function(d) { console.error("Ошибка сокета " + d); };
+
+      ws.onclose = function() { 
+        state = false;
+        console.log('Connection closed');
+        if (ping) clearInterval(ping);
+        reconnect = setTimeout(function() {connect();}, reconnectTimeout);
+      };
+
+    } else {
+      reconnect = setTimeout(function() {connect();}, reconnectTimeout);
+    }
+    
+    return WSObj;
+  }
+  
+  return connect();
+}
+
+  
+function api(connection) {
+  
+  var tryTimeout = 100;
+  
+  var cbks = {};
+  
+  var jsonrpc = jsonrpc2();
+  
+  var ws = WSS(connection);
+  
+  ws.onmessage(function(data) {
+
+    console.log('data', data);
+    
+    data = jsonrpc.parse(data);
+    if (data.id && typeof cbks[data.id] === 'function') {
+      cbks[data.id](data.error, data.result);
+      cbks[data.id] = null;
+    }
+  });
+  
+  var api = function api(method, params, cbk) {
+      if (ws.ready()) {
+        console.log('z', params);
+
+        if ($localStorage.me && $localStorage.me.token) {
+          params = params || {};
+          params.token = $localStorage.me.token;
+        }
+        
+        var c = jsonrpc.serialize(method, params);
+        if (typeof cbk === 'function') {
+          cbks[c.id] = cbk;
+        }
+        ws.send(c);
+      } else {
+        setTimeout(function() {
+          api(params, method, cbk);
+        }, tryTimeout);
+      }
   }
 
-  
-  
-  
-  
-  
-  
-  
-  
-  
+  return api;
+}
+
+return api;  
 
 /*            
   

@@ -1,23 +1,4 @@
 var apiSchema = {
-    "auth": {
-        "description": "User password authetification",
-        "methods": {
-            "login": {
-                "params": {
-                    "username": "string",
-                    "password": "string"
-                },
-                "response": {
-                    "token": "string"
-                }
-            },
-            "logout": {
-                "params": {
-                    "token": "string"
-                }
-            }
-        }
-    },
     "users": {
         "description": "Basic users model",
         "roles": {
@@ -50,6 +31,28 @@ var apiSchema = {
                     "role": "string"
                 },
                 "access": "superadmin"
+            },
+            "login": {
+                "params": {
+                    "username": "string",
+                    "password": "string"
+                },
+                "response": {
+                    "token": "string",
+                    "user": {
+                        "id": "string",
+                        "date": "date",
+                        "name": "string",
+                        "password": "string",
+                        "state": "boolean",
+                        "role": "string"
+                    }
+                }
+            },
+            "logout": {
+                "params": {
+                    "token": "string"
+                }
             },
             "update": {
                 "params": {
@@ -96,14 +99,14 @@ var apiSchema = {
             "write": "superdmin aggregators.admin"
         },
         "model": {
-            "_id": "string",
+            "id": "string",
             "_date": "date",
             "sn": "string",
             "description": "string",
             "license": "array"
         },
         "license": {
-            "_id": "string",
+            "id": "string",
             "_date": "date",
             "ports": "number",
             "mpls": "boolean",
@@ -116,7 +119,7 @@ var apiSchema = {
             },
             "add": {
                 "params": {
-                    "_id": "string",
+                    "id": "string",
                     "_date": "date",
                     "sn": "string",
                     "description": "string",
@@ -126,7 +129,7 @@ var apiSchema = {
             },
             "update": {
                 "params": {
-                    "_id": "string",
+                    "id": "string",
                     "_date": "date",
                     "sn": "string",
                     "description": "string",
@@ -142,7 +145,7 @@ var apiSchema = {
             },
             "licenseadd": {
                 "params": {
-                    "_id": "string",
+                    "id": "string",
                     "_date": "date",
                     "ports": "number",
                     "mpls": "boolean",

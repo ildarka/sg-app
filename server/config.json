@@ -4,25 +4,6 @@
     "port": 3000,
     "wsport": 3001,
     "api": {
-        "auth": {
-            "description": "User password authetification",
-            "methods": {
-                "login": {
-                    "params": {
-                        "username": "string",
-                        "password": "string"
-                    },
-                    "response": {
-                        "token": "string"
-                    }
-                },
-                "logout": {
-                    "params": {
-                        "token": "string"
-                    }
-                }
-            }
-        },
         "users": {
             "description": "Basic users model",
             "roles": {
@@ -55,6 +36,28 @@
                         "role": "string"
                     },
                     "access": "superadmin"
+                },
+                "login": {
+                    "params": {
+                        "username": "string",
+                        "password": "string"
+                    },
+                    "response": {
+                        "token": "string",
+                        "user": {
+                            "id": "string",
+                            "date": "date",
+                            "name": "string",
+                            "password": "string",
+                            "state": "boolean",
+                            "role": "string"
+                        }
+                    }
+                },
+                "logout": {
+                    "params": {
+                        "token": "string"
+                    }
                 },
                 "update": {
                     "params": {
@@ -101,14 +104,14 @@
                 "write": "superdmin aggregators.admin"
             },
             "model": {
-                "_id": "string",
+                "id": "string",
                 "_date": "date",
                 "sn": "string",
                 "description": "string",
                 "license": "array"
             },
             "license": {
-                "_id": "string",
+                "id": "string",
                 "_date": "date",
                 "ports": "number",
                 "mpls": "boolean",
@@ -121,7 +124,7 @@
                 },
                 "add": {
                     "params": {
-                        "_id": "string",
+                        "id": "string",
                         "_date": "date",
                         "sn": "string",
                         "description": "string",
@@ -131,7 +134,7 @@
                 },
                 "update": {
                     "params": {
-                        "_id": "string",
+                        "id": "string",
                         "_date": "date",
                         "sn": "string",
                         "description": "string",
@@ -147,7 +150,7 @@
                 },
                 "licenseadd": {
                     "params": {
-                        "_id": "string",
+                        "id": "string",
                         "_date": "date",
                         "ports": "number",
                         "mpls": "boolean",

@@ -21,6 +21,7 @@ DECLARE
   _old_value    json;
   _new_value    json;
 BEGIN
+
   _user_id = system._auth(i_token);
 
   SELECT * INTO _rights, _group_id

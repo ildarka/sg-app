@@ -11,12 +11,11 @@ begin
   -- Проверка на существование пользователя
   PERFORM 1 FROM users WHERE body->>'username' = i_username;
 
-  IF FOUND THEN RAISE 'Duplicate user';
-  END IF;
+  IF FOUND THEN RAISE 'Duplicate user'; END IF;
 
   -- Добавление пользователя
   INSERT INTO users(body) VALUES (
-    json_build_object('username', i_username, 'password', i_password)::jsonb
+    json_build_object('username', i_username, 'password', i_password, 'state', 'NEW')::jsonb
   );
 
   -- o_id = currval(pg_get_serial_sequence('users', 'id'));
@@ -24,4 +23,4 @@ begin
 $$ LANGUAGE 'plpgsql';
 
 -- Test
-select * from users.register('777','10');
+-- select * from users.register('777','10');

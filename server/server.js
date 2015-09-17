@@ -19,6 +19,8 @@ var rpc = {
   }
 };
 
+// Контейнер для пользователей online
+var onlineusers = {};
 
 function apifunc(rpc) {
 // rpc contains db, send, error, model, method, methodname
@@ -45,6 +47,7 @@ function expose(server, model, method, fn) {
         params: params,
         schema: config.api[model].methods[method],
         db: db,
+        onlineusers: onlineusers,
         model: model,
         method: method,
         methodname: model + '.' + method,

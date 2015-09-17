@@ -43,33 +43,49 @@ var {{method}} = function(sgapp) {
   } else {
         sgapp.error('Invalid params!');
   }
-  {{else if is.register}}
-  // Custom register method FIXME: change to sql call with chacker + jsonShema validation
-  /*
-  if (sgapp.params.username == '' || sgapp.params.password == '') {
-    sgapp.error('InvalidParams');
-  };
-  */
-  
+  {{else if is.login}}
   if (!sgapp.errors) {
-    var params = {
-      username: sgapp.params.username,
-      password: sgapp.params.password,
-      state: 'NEW',
-      date: new Date()
-    };
-    console.log(1);
-    sgapp.db.saveDoc('{{module}}', params, function(err, res) {
-      console.log(2);
-      sgapp.send('Registered');
+    sgapp.db.users.login([sgapp.params.username, sgapp.params.password], function(err, res) {
+      if (err) {
+        console.log(err);
+        sgapp.error(err);
+      } else {
+        var rand = function() {
+            return Math.random().toString(36).substr(2);
+        };
+
+        var gettoken = function() {
+            return rand() + rand(); // to make it longer
+        };
+     
+        var token = gettoken();
+        var body = res[0].o_body;
+        body.id = res[0].o_id;
+        body.token = token;
+        sgapp.onlineusers[token] = body;
+        sgapp.send(body);
+      }
     });
   }
-  {{#if is.login}}
+  {{else if is.logout}}
   if (!sgapp.errors) {
-      sgapp.db.users.login([sgapp.params.username, sgapp.params.password],function(err, res) {
-        sgapp.send(res);
-      });
-    }
+    sgapp.onlineusers[sgapp.params.token] = null;
+    sgapp.send('OK');
+  }
+  {{else if is.register}}
+  if (!sgapp.errors) {
+    sgapp.db.users.register([sgapp.params.name, sgapp.params.password],function(err, res) {
+      if (err) sgapp.error(err); else sgapp.send(res);
+    });
+  }
+  {{else if is.switchState}}
+  if (!sgapp.errors) {
+    
+    var q = 'UPDATE users SET body = body || \'{"state": "' + sgapp.params.state + '"}\' WHERE id = ' + sgapp.params.id;
+    console.log(q, sgapp.params);
+    sgapp.db.run(q, function(err, res) {
+      if (err) sgapp.error(err); else sgapp.send(res);
+    });
   }
   {{else}}
   if (!sgapp.errors) {
