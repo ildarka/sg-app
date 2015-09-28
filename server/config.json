@@ -1,5 +1,6 @@
 {
-    "title": "Aggregator API",
+    "title": "Aggregator GUI",
+    "description": null,
     "baseUri": "ws://localhost",
     "port": 3000,
     "wsport": 3001,
@@ -39,7 +40,7 @@
                 },
                 "login": {
                     "params": {
-                        "username": "string",
+                        "name": "string",
                         "password": "string"
                     },
                     "response": {
@@ -100,72 +101,107 @@
         "agg": {
             "description": "Aggregators",
             "roles": {
-                "read": "superdmin aggregators.admin aggregators.user",
-                "write": "superdmin aggregators.admin"
+                "read": "superadmin aggregators.admin aggregators.user",
+                "write": "superadmin aggregators.admin"
             },
             "model": {
                 "id": "string",
-                "_date": "date",
+                "date": "date",
                 "sn": "string",
                 "description": "string",
                 "license": "array"
             },
             "license": {
                 "id": "string",
-                "_date": "date",
                 "ports": "number",
                 "mpls": "boolean",
-                "mirror": "boolean",
-                "filename": "string"
+                "mirror": "boolean"
             },
             "methods": {
                 "get": {
-                    "access": "superdmin aggregators.admin aggregators.user"
+                    "access": "superadmin aggregators.admin aggregators.user"
                 },
                 "add": {
                     "params": {
                         "id": "string",
-                        "_date": "date",
+                        "date": "date",
                         "sn": "string",
                         "description": "string",
                         "license": "array"
                     },
-                    "access": "superdmin aggregators.admin"
+                    "access": "superadmin aggregators.admin"
                 },
                 "update": {
                     "params": {
                         "id": "string",
-                        "_date": "date",
+                        "date": "date",
                         "sn": "string",
                         "description": "string",
                         "license": "array"
                     },
-                    "access": "superdmin aggregators.admin"
+                    "access": "superadmin aggregators.admin"
                 },
                 "remove": {
                     "params": {
-                        "_id": "string"
+                        "id": "string"
                     },
-                    "access": "superdmin aggregators.admin"
+                    "access": "superadmin aggregators.admin"
                 },
                 "licenseadd": {
                     "params": {
                         "id": "string",
-                        "_date": "date",
                         "ports": "number",
                         "mpls": "boolean",
-                        "mirror": "boolean",
-                        "filename": "string"
+                        "mirror": "boolean"
                     },
-                    "access": "superdmin aggregators.admin"
-                },
-                "licenseremove": {
-                    "params": {
-                        "index": "string"
-                    },
-                    "access": "superdmin aggregators.admin"
+                    "access": "superadmin aggregators.admin"
                 }
             }
+        },
+        "software": {
+            "description": "Software model",
+            "model": {
+                "date": "date",
+                "name": "string"
+            },
+            "methods": {
+                "list": {
+                    "response": {
+                        "date": "date",
+                        "name": "string"
+                    }
+                }
+            }
+        }
+    },
+    "server": {
+        "connectionString": "postgres://localhost/sgapp"
+    },
+    "routes": {
+        "/": {
+            "template": "modules/agg/agg.html",
+            "title": "Агрегаторы",
+            "controller": "aggCtrl",
+            "class": "-nopaddings",
+            "access": "superadmin aggregator.admin aggregator.user"
+        },
+        "/software/": {
+            "template": "modules/software/software.html",
+            "title": "Версии ПО",
+            "controller": "softwareCtrl",
+            "access": "superadmin aggregator.user"
+        },
+        "/users/": {
+            "template": "modules/users/users.html",
+            "title": "Пользователи",
+            "controller": "usersCtrl",
+            "access": "superadmin"
+        },
+        "/dev/": {
+            "template": "modules/dev/dev.html",
+            "title": "DEV",
+            "hidden": true,
+            "controller": "devCtrl"
         }
     }
 }

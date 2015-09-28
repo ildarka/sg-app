@@ -1,0 +1,87 @@
+<html ng-app="app">
+<head>
+  <meta charset="utf-8" />
+  <link rel="stylesheet" href="lib/sega2/sega2.css" />
+  <link rel="stylesheet" href="dev.css" />
+</head>
+  
+<body ng-controller="appCtrl">
+  <header>
+    
+  </header>
+  
+  <main class="paper">
+    <article ng-show = "!autorized">
+
+      <form class="login" ng-submit="login()" style="width:300px;" ng-class="{shake: _loginerror}">
+        <label>Пользователь</label>
+        <input ng-model="name" type="text" />
+        <label>Пароль</label>
+        <input ng-model="password" type="password" />
+        <input type="submit" class="-small" value="Отправить"/>
+      </form>
+      <ul>
+      </ul>
+      
+    </article>
+
+    <p ng-show = "autorized">
+      <span style="margin-right:20px">Log On as {{me.name}}. Token: {{me.token}}</span> <a ng-click="logout()">logout</a>
+    </p>
+    
+    <span class="tap" ng-class="{'-active': expand}"><a ng-click="expand=!expand">Expand all</a></span> 
+    <span class="tap" ng-class="{'-active': forms}"><a ng-click="forms=!forms">Show forms</a></span> 
+    <span style="margin-right:20px" class="tap" ng-class="{'-active': params}"><a ng-click="params=!params">Show params</a></span>
+    <button style="margin-right:20px" class="-rounded" ng-click="testAll()">Test all API</button>
+    <span class="allErrors" ng-show="_allErrors">Errors: {{_allErrors}}</span>
+    <span ng-show="_testAll && !_allErrors">All OK!</span>
+
+    <article class="clearfix" ng-repeat="(model, vmodel) in apiSchema">
+      <h1>{{model | uppercase}}</h1>
+          <div class="method clearfix" ng-repeat="(method, vmethod) in vmodel.methods" ng-init="initMethod(model,method,vmethod)">
+            <div>
+              <a class="pseudo-link" ng-click="vmethod.expand = !vmethod.expand">{{vmethod.methodname}}</a>
+            </div>
+            
+            <div class="more" ng-show="expand || vmethod.expand">
+            <div class="form" ng-show="forms">
+              <textarea ng-if="vmethod.params" style="height:6em" ng-model="vmethod.formatedParams" auto-grow ng-class="{jsonerror: vmethod._jsonerror, shake: vmethod._shake}"></textarea>
+              <div>
+                <input type="submit" class="-small -blue" value="Отправить" ng-click="apicall(vmethod.methodname,vmethod.formatedParams,vmethod)" /> 
+
+                <span class="elapsed">
+                  <span ng-if="!vmethod._inprogress && vmethod._elapsed"><span ng-bind="vmethod._elapsed"></span> ms</span>
+                  <span ng-if="vmethod._inprogress"><i class="fa fa-spin fa-circle-o-notch"></i></span>
+                </span>
+              </div>
+              <div ng-if="vmethod._result && !vmethod._error" class="result">
+                <pre class="json">{{vmethod._result}}</pre>
+              </div>  
+              <div ng-if="vmethod._error" class="error">
+                <pre class="json">Error: {{vmethod._error}}</pre>
+              </div>  
+            </div>
+              
+
+            <div class="params" ng-show="params">
+              <pre class="request json" ng-if="vmethod.params">Request:
+{{vmethod.params | JSON}}
+              </pre>
+              <pre class="request json" ng-if="vmethod.response" ng-class="{'no-top-padding': vmethod.params}">Response:
+{{vmethod.response | JSON}}
+              </pre>
+
+            </div>
+                        
+          </div>  
+    </article>  
+
+    
+  </main>
+</body>
+  
+  <script src="lib/angularjs/angular.js"></script>
+  <script src="lib/ngstorage/ngStorage.min.js"></script>
+  <script src="all.js">;</script>
+
+</html>

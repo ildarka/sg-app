@@ -1,0 +1,65 @@
+<hgroup>
+  <h1>
+    {{route.title}}
+  </h1>
+  
+  <button ng-show="ACL('superadmin aggregator.admin')" ng-click="show.form = !show.form" class="-round -yellow addButton"><i class="mdi mdi-plus"></i></button>
+</hgroup>
+
+<div class="agg">
+  <div class="form addform clearfix" ng-show="show.form">
+    <form name="addform" ng-submit="add()">
+      <input type="text" autofocus class="serial" ng-model="model.sn" placeholder="Серийный номер чипа" required />
+
+      <div class="description">
+        <textarea ng-model="model.description" placeholder="Описание устройства"></textarea> 
+      </div>
+
+      <input type="submit" ng-class="{'-disabled': !addform.$valid}" value="Сохранить" />  
+    </form>  
+  </div>
+    
+  <article ng-repeat="a in agg | orderBy : '-date'" class="paper" ng-class="{'-selected' : a.selected}" ng-click="selectAgg(a)">
+    <div class="actions -pull-right">
+      <a ng-show="a.selected" class="pseudo-link -m-right" ng-click="remove(a.id)"><i class="mdi mdi-delete"></i> Удалить устройство</a></li>
+      <span class="date">{{a.date|date: 'dd.MM.yyyy'}}</span>
+    </div>
+    <h2>SN: {{a.sn}}</h2>
+    <div class="description" ng-show="a.description">
+      {{a.description}}
+    </div>
+    
+    <div class="license" ng-show="a.selected && a.license">
+      <ul>
+        <li ng-repeat="l in a.license">
+          <a href="/license/{{l.file}}" target="_blank">
+            <i class="mdi mdi-star"></i> {{l.file}}
+          </a>
+        </li>
+      </ul>
+    </div>
+    
+    <div class="licenseform" ng-class="{'licenseform-active': show.license}" ng-if="a.selected">
+
+          <a class="pseudo-link" ng-click="show.license = !show.license"><i class="mdi mdi-star-circle"></i> Выпустить лицензию</a>
+
+          <form name="licform" class="form" ng-show="show.license" ng-submit="licenseAdd(a.id)">
+            <div class="field">
+              <label class="ports">Порты</label> <input type="text" ng-model="lic.ports" placeholder="от 1 до 64" size="7" required />
+            </div>
+            <div class="field ports-shift">
+              <label><input type="checkbox" ng-model="lic.mirror" /> Mirror</label>
+            </div>
+            <div class="field ports-shift">
+              <label><input type="checkbox" ng-model="lic.mpls" /> MPLS</label>
+            </div>
+            <div class="ports-shift">            
+              <input type="submit" value="ОК" ng-class="{'-disabled': !licform.$valid}" />
+            </div>
+          </form>
+      
+    </div>
+    
+  </article>
+
+</div>

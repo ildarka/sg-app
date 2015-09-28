@@ -1,0 +1,43 @@
+/* Shake animation */
+
+/* TODO: prefixes */
+@keyframes shake {
+    0%, 100% {-webkit-transform: translateX(0);}
+    20% {-webkit-transform: translateX(-3px);}
+    40% {-webkit-transform: translateX(4px);}
+    60% {-webkit-transform: translateX(-3px);}
+    80% {-webkit-transform: translateX(3px);}
+}
+
+@-webkit-keyframes shake {
+    0%, 100% {-webkit-transform: translateX(0);}
+    20% {-webkit-transform: translateX(-3px);}
+    40% {-webkit-transform: translateX(4px);}
+    60% {-webkit-transform: translateX(-3px);}
+    80% {-webkit-transform: translateX(3px);}
+}
+
+.shake {
+    animation: shake 300ms;
+    -webkit-animation: shake 300ms;
+}
+
+.shake-add-active {
+  animation: shake 300ms;
+  -webkit-animation: shake 300ms
+}
+
+/*
+
+
+.shake-add, .shake-remove {
+  animation: none;
+  -webkit-animation: none;
+}
+
+
+.shake-add-active {
+ animation: shake 300ms;
+  -webkit-animation: shake 300ms;
+}
+*/

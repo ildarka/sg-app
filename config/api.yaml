@@ -1,4 +1,0 @@
-# API
-
-users: $ref api/users.yaml
-agg: $ref api/agg.yaml

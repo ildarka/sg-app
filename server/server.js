@@ -1,3 +1,4 @@
+var path = require('path');
 var express = require('express');
 var app = express();
 
@@ -5,11 +6,15 @@ var JsonRpcWs = require('json-rpc-ws');
 var server = JsonRpcWs.createServer();
 
 var config = require('./config.json');
+var public = path.resolve(__dirname + '/public/');
+
+
 
 app.listen(config.port, function() {
   console.log('Webserver started on ', config.port);
 });
 
+/*
 var rpc = {
   error: function(err) {
     this.reply(err, null);
@@ -19,14 +24,11 @@ var rpc = {
   }
 };
 
-// Контейнер для пользователей online
-var onlineusers = {};
-
 function apifunc(rpc) {
 // rpc contains db, send, error, model, method, methodname
   
       var newUser = {
-        username: rpc.params.username,
+        name: rpc.params.name,
         password: rpc.params.password,
         state: 'NEW',
         date: new Date()
@@ -36,15 +38,29 @@ function apifunc(rpc) {
         rpc.send("OK");
       });
 }
+*/
+
+// Контейнер для пользователей online
+var onlineusers = {};
+
+
 
 // expose API methods
 function expose(server, model, method, fn) {
     server.expose(model + '.' + method, function(params, reply) {
       
       console.log(model + '.' + method);
-  
+      
+      var token = null;
+      if (params && params.token) {
+        token = params.token;
+        delete(params.token);
+      }
+      
       sgapp = {
+        dirname: __dirname,
         params: params,
+        token: token,
         schema: config.api[model].methods[method],
         db: db,
         onlineusers: onlineusers,
@@ -59,7 +75,25 @@ function expose(server, model, method, fn) {
           this.errors++;
           reply(err, null);
         },
-        accessControl: function() {
+        ACL: function() {
+          if (this.schema && this.schema.access) {
+            if (!token) {
+              this.error('Forbbiden'); 
+            } else {
+              if (!this.onlineusers[token]) {
+                this.error('Forbbiden'); 
+              } else {
+
+                var u = this.onlineusers[token];
+                console.log('--', u.role, this.schema.access, this.schema.access.indexOf(u.role));
+                if (this.schema.access.indexOf(u.role) == -1) {
+                  console.log(4);
+                  this.error('Forbbiden'); 
+                }
+              }
+            }
+          }
+          
           return true;
         },
         validate: function() {
@@ -72,6 +106,7 @@ function expose(server, model, method, fn) {
     });
 }
 
+// Expose api functions
 for (var model in config.api) {
   var apimodel = require('./api/' + model + '.js');
   for(method in config.api[model].methods) {
@@ -79,38 +114,27 @@ for (var model in config.api) {
   }
 }
 
-server.expose('mirror', function mirror (params, reply) {
-    console.log('mirror handler', params);
-    reply(null, params);
-});
+// Return index.html for all routes
+for (var url in config.routes) {
+  app.get(url, function (req, res) {
+    res.sendFile(public + '/index.html');
+  });
+};
 
-app.use(express.static(__dirname + '/../public/'));
-
+app.use(express.static(public));
+app.use('/software', express.static(__dirname + '/software/'));
+app.use('/license', express.static(__dirname + '/license/'));
 
 var massive = require("massive");
-var connectionString = "postgres://postgres:1@localhost/sgapp"
-var connectionString = "postgres://localhost/sgapp"
 
-
-var db = massive.connectSync({connectionString : connectionString});
-
-//you can use db for 'database name' running on localhost
-//or send in everything using 'connectionString'
-massive.connect({connectionString : connectionString}, function(err,db) {
-  //console.log(db.tables);
-/*
-  db.newusers.find( function(err,res){
-    console.log(res);
-    //user with ID 1
+var db = massive.connectSync({connectionString : config.server.connectionString});
+if (!db) {
+  console.error('Postgres sgapp database not found!');
+  process.exit(1);
+} else {
+  console.log('Connected to DB');
+  server.start({ port: config.wsport }, function started () {
+    console.log('Websockets started on port', config.wsport);
   });
-  */
-});
+}
 
-
-    console.log('Connected to DB');
-
-    server.start({ port: config.wsport }, function started () {
-      
-      console.log('Websockets started on port', config.wsport);
-    
-    });

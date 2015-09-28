@@ -3,7 +3,7 @@
 var get = function(sgapp) {
   
   sgapp.validate();
-  sgapp.accessControl();
+  sgapp.ACL();
   
   // Get data from Postgres
   
@@ -11,7 +11,7 @@ var get = function(sgapp) {
     if (!sgapp.db['users']) {
         sgapp.send([]);
     } else {
-      sgapp.db['users'].findDoc("*",function(err, res) {
+      sgapp.db['users'].findDoc("*", {order: "created_at desc"}, function(err, res) {
         res = res || [];
         sgapp.send(res);
       });
@@ -22,10 +22,10 @@ var get = function(sgapp) {
 var login = function(sgapp) {
   
   sgapp.validate();
-  sgapp.accessControl();
+  sgapp.ACL();
   
   if (!sgapp.errors) {
-    sgapp.db.users.login([sgapp.params.username, sgapp.params.password], function(err, res) {
+    sgapp.db.users.login([sgapp.params.name, sgapp.params.password], function(err, res) {
       if (err) {
         console.log(err);
         sgapp.error(err);
@@ -52,7 +52,7 @@ var login = function(sgapp) {
 var logout = function(sgapp) {
   
   sgapp.validate();
-  sgapp.accessControl();
+  sgapp.ACL();
   
   if (!sgapp.errors) {
     sgapp.onlineusers[sgapp.params.token] = null;
@@ -63,7 +63,7 @@ var logout = function(sgapp) {
 var update = function(sgapp) {
   
   sgapp.validate();
-  sgapp.accessControl();
+  sgapp.ACL();
   
   // Update object in Postgres
   var params = sgapp.params;
@@ -76,7 +76,7 @@ var update = function(sgapp) {
 var changePassword = function(sgapp) {
   
   sgapp.validate();
-  sgapp.accessControl();
+  sgapp.ACL();
   
   if (!sgapp.errors) {
     //Put your code here
@@ -87,7 +87,7 @@ var changePassword = function(sgapp) {
 var remove = function(sgapp) {
   
   sgapp.validate();
-  sgapp.accessControl();
+  sgapp.ACL();
   
   // Manual remove object in Postgres
   if (sgapp.params.id) {
@@ -102,7 +102,7 @@ var remove = function(sgapp) {
 var switchState = function(sgapp) {
   
   sgapp.validate();
-  sgapp.accessControl();
+  sgapp.ACL();
   
   if (!sgapp.errors) {
     
@@ -117,11 +117,11 @@ var switchState = function(sgapp) {
 var register = function(sgapp) {
   
   sgapp.validate();
-  sgapp.accessControl();
+  sgapp.ACL();
   
   if (!sgapp.errors) {
     sgapp.db.users.register([sgapp.params.name, sgapp.params.password],function(err, res) {
-      if (err) sgapp.error(err); else sgapp.send(res);
+      if (err) sgapp.error(err); else sgapp.send("OK");
     });
   }
 };

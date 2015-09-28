@@ -2,27 +2,25 @@ description: Aggregators
 
 roles:
   read:
-    superdmin
+    superadmin
     aggregators.admin    
     aggregators.user
   write:
-    superdmin
+    superadmin
     aggregators.admin
 
 model:
   id: string
-  _date: date
+  date: date
   sn: string
   description: string
   license: array
 
 license:
   id: string
-  _date: date
   ports: number
   mpls: boolean
   mirror: boolean
-  filename: string
 
 methods:
   get:
@@ -38,15 +36,9 @@ methods:
 
   remove:
     params:
-      _id: string
+      id: string
     access: $ref roles/write
 
   licenseadd:
     params: $ref license
     access: $ref roles/write
-
-  licenseremove:
-    params: 
-      index: string
-    access: $ref roles/write
-

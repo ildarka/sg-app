@@ -1,8 +1,40 @@
 # Config
 
-title: Aggregator API
+title: Aggregator GUI
+description: 
 baseUri: ws://localhost
 port: 3000
 wsport: 3001
 
-api: $ref api.yaml
+api: 
+  users: $ref api/users.yaml
+  agg: $ref api/agg.yaml
+  software: $ref api/software.yaml
+
+# This section will be removed from client-side config
+server:
+  connectionString: postgres://localhost/sgapp
+  
+routes:
+  /: 
+    template: modules/agg/agg.html
+    title: Агрегаторы
+    controller: aggCtrl
+    class: -nopaddings
+    access: superadmin aggregator.admin aggregator.user  
+  /software/: 
+    template: modules/software/software.html
+    title: Версии ПО
+    controller: softwareCtrl
+    access: superadmin aggregator.user
+  /users/: 
+    template: modules/users/users.html
+    title: Пользователи
+    controller: usersCtrl
+    access: superadmin
+  /dev/: 
+    template: modules/dev/dev.html
+    title: DEV
+    hidden: true
+    controller: devCtrl
+  

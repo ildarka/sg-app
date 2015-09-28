@@ -1,0 +1,84 @@
+  body {margin:4em; font-family: Roboto, Helvetica, sans-serif}
+  
+  .clearfix:after {
+       visibility: hidden;
+       display: block;
+       font-size: 0;
+       content: " ";
+       clear: both;
+       height: 0;
+       }
+  .clearfix { display: inline-block; }
+  /* start commented backslash hack \*/
+  * html .clearfix { height: 1%; }
+  .clearfix { display: block; }
+  
+  hr {
+    height: 1px; 
+    border: none;
+    margin: 1em 0;
+    border-top:solid #ccc 1px;
+    background: none;
+  }
+  aside {
+    float: left;
+    width: 25%;
+    min-width: 200px;
+    margin-right: 3em;
+  }
+  aside ul {
+    margin:0;
+    padding:0;
+  }
+  aside li {list-style-type: none; padding: .3em 0}
+  aside cite {
+    display:block;
+    padding:.5em 0;
+  }
+  
+  .login label, .login input {display: block}
+  .login input {margin-bottom:1em;}
+  
+  .method {margin-bottom: 1em;}
+  
+  .form {margin:0.5em 0 0 0}
+  .form textarea {margin-bottom:0.5em; width:100%; border-color:lavender;}
+  pre {margin:0}
+  .json {padding: 1em; background:#ffffdd; font-size:80%}
+  .params {margin-top:0.5em}
+  .no-top-padding {padding-top:0}
+  
+  .elapsed {margin-left:1em; color:#777; font-size:80%}
+  .result .json {background:#dcf6ff; border:solid 1px #bde0ec; margin-top:0.5em}
+  .error .json {background:#fff2f2; border:solid 1px #f8d1d1; margin-top:0.5em; color: #cc0000;}
+  
+.allErrors {color: #cc0000}
+
+  h1 {margin: 1em 0 0.5em 0; font-size:150%}
+  
+  textarea.jsonerror {border-color:red;}
+  
+  // shake animation
+  @shake_distance: 4px;
+
+  @keyframes shake {
+    0%, 100% {-webkit-transform: translateX(0);}
+    20% {-webkit-transform: translateX(-3px);}
+    40% {-webkit-transform: translateX(4px);}
+    60% {-webkit-transform: translateX(-3px);}
+    80% {-webkit-transform: translateX(3px);}
+  }
+
+  @-webkit-keyframes shake {
+    0%, 100% {-webkit-transform: translateX(0);}
+    20% {-webkit-transform: translateX(-3px);}
+    40% {-webkit-transform: translateX(4px);}
+    60% {-webkit-transform: translateX(-3px);}
+    80% {-webkit-transform: translateX(3px);}
+  }
+
+  .shake {
+    animation: shake 300ms;
+    -webkit-animation: shake 300ms;
+  }
+  

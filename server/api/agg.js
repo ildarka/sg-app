@@ -3,7 +3,7 @@
 var get = function(sgapp) {
   
   sgapp.validate();
-  sgapp.accessControl();
+  sgapp.ACL();
   
   // Get data from Postgres
   
@@ -11,7 +11,7 @@ var get = function(sgapp) {
     if (!sgapp.db['agg']) {
         sgapp.send([]);
     } else {
-      sgapp.db['agg'].findDoc("*",function(err, res) {
+      sgapp.db['agg'].findDoc("*", {order: "created_at desc"}, function(err, res) {
         res = res || [];
         sgapp.send(res);
       });
@@ -22,7 +22,7 @@ var get = function(sgapp) {
 var add = function(sgapp) {
   
   sgapp.validate();
-  sgapp.accessControl();
+  sgapp.ACL();
   
   // Add object to Postgres
   var params = sgapp.params;
@@ -39,7 +39,7 @@ var add = function(sgapp) {
 var update = function(sgapp) {
   
   sgapp.validate();
-  sgapp.accessControl();
+  sgapp.ACL();
   
   // Update object in Postgres
   var params = sgapp.params;
@@ -52,7 +52,7 @@ var update = function(sgapp) {
 var remove = function(sgapp) {
   
   sgapp.validate();
-  sgapp.accessControl();
+  sgapp.ACL();
   
   // Manual remove object in Postgres
   if (sgapp.params.id) {
@@ -67,22 +67,38 @@ var remove = function(sgapp) {
 var licenseadd = function(sgapp) {
   
   sgapp.validate();
-  sgapp.accessControl();
+  sgapp.ACL();
   
   if (!sgapp.errors) {
-    //Put your code here
-    sgapp.send("Ok");
-  }
-};
+    var exec = require('child_process').exec;
+    
+    sgapp.db['agg'].findDoc({id: sgapp.params.id}, function(err, res) {
+      if (err) {
+         console.log('err', err);
+         sgapp.error('Problems');
+      } else {
 
-var licenseremove = function(sgapp) {
-  
-  sgapp.validate();
-  sgapp.accessControl();
-  
-  if (!sgapp.errors) {
-    //Put your code here
-    sgapp.send("Ok");
+        var fname = res.sn + '_' + sgapp.params.ports;
+        if (sgapp.params.mirror) fname += '_MR';
+        if (sgapp.params.mpls) fname += '_MS';
+        fname += '.lic';
+
+        var lic = {file: fname, date: new Date()};        
+
+        exec('node server/scripts/generatelic.js --sn ' + res.sn + ' --ports ' + sgapp.params.ports + ' --mirror '+sgapp.params.mirror + ' --mpls '+sgapp.params.ports + ' --filename ' + fname, function(err, stdout, stderr) {
+          if (err) {
+            console.log(err);
+          } else {
+            res.license = res.license || [];
+            res.license.push(lic);
+            sgapp.db['agg'].saveDoc(res, function(err, r) {
+              console.log('res', res);
+              sgapp.send('OK');
+            });
+          }
+        });
+      }
+    });
   }
 };
 
@@ -92,4 +108,3 @@ module.exports.add = add;
 module.exports.update = update;
 module.exports.remove = remove;
 module.exports.licenseadd = licenseadd;
-module.exports.licenseremove = licenseremove;

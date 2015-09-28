@@ -1,0 +1,58 @@
+<h1>
+  {{route.title}}
+</h1>
+
+<div class="users clearfix columns2">
+
+<div class="column">
+    <ul>
+      <li ng-repeat="u in users | orderBy : 'id' track by $index">
+        <div class="-pull-right">
+          <select ng-model="u.role" ng-change="update(u)" ng-options="key as value for (key, value) in config.api.users.roles" class="role -m-right" >
+          </select>  
+          <a ng-click="ban(u.id)" class="pseudo-link -muted"><i class="mdi mdi-window-close"></i> Бан</a>
+        </div>
+        <i class="mdi mdi-account"></i>
+        <b>{{u.name}}</b>
+
+      </li>
+    </ul>
+</div>
+
+<div class="column panel" ng-show="usersNEW.length || usersBAN.length">
+    <div ng-show="usersNEW.length">
+      <i>Ждут подтверждения</i>
+      <ul>
+        <li ng-repeat="u in usersNEW">
+          <div class="-pull-right">
+            <a ng-click="aprove(u)" class="pseudo-link -m-right"><i class="mdi mdi-check"></i> OK</a>
+            <a ng-click="remove(u.id)" class="pseudo-link -muted"><i class="mdi mdi-window-close"></i> Удалить</a>
+          </div>
+
+          <span class="date">{{u.date | date : "dd.MM.yyyy"}}</span> 
+          <i class="mdi mdi-account"></i>
+          <b>{{u.name}}</b>
+        </li>
+      </ul>
+    </div>
+    
+    <div ng-class="{'-m2-top': usersNEW.length}" ng-show="usersBAN.length">
+      <i>Забаненные</i>
+      <ul>
+        <li ng-repeat="u in usersBAN">
+          <div class="-pull-right">
+            <a ng-click="aprove(u)" class="pseudo-link -m-right"><i class="mdi mdi-check"></i> OK</a>
+            <a ng-click="remove(u.id)" class="pseudo-link -muted"><i class="mdi mdi-window-close"></i> Удалить</a>
+          </div>
+
+          <span class="date">{{u.date | date : "dd.MM.yyyy"}}</span> 
+          <i class="mdi mdi-account"></i>
+          <b>{{u.name}}</b>
+        </li>
+      </ul>
+    </div>
+  
+  
+</div>
+
+</div>

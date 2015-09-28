@@ -1,0 +1,87 @@
+body {font-family: Roboto, Helvetica, sans-serif; margin:0; padding:0}
+
+h2 {margin-bottom:0.2em}
+
+// Header
+header {
+  padding: 0 15px 0 0;
+  ul {margin:0 0 0 40px; padding:0}
+  ul a {color: white;}
+  li {list-style-type:none; display:inline-block; padding: 8px 10px 12px 10px;}
+  li.active {background: rgba(255,255,255,0.15);}
+  li.active a {cursor:default; text-decoration:none; border: none}
+
+  .me {padding: 8px 1em; coor: black;}
+}
+
+hgroup {position:relative; margin:0; padding: 0}
+.-nopaddings hgroup {padding: 2em}
+
+hgroup button {
+  position:absolute; 
+  left:300px;
+  top:36px;
+}
+
+main {max-width:60em; min-height:40em; margin:3em auto;}
+
+/* Angular styles */
+[ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
+    display: none !important;
+}
+[ng-click] {cursor:pointer}
+.ng-invalid.ng-touched {border-color:#cc0000; border-width:1px}
+
+.addform {border:solid 5px gold; padding:1em 2em;}
+
+/* TODO: Move to SEGA2*/
+header {width: inherit}
+
+hr {
+    height: 1px; 
+    border: none;
+    margin: 1em 0;
+    border-top:solid #ccc 1px;
+    background: none;
+}
+
+.-pull-right {float: right; }
+.-pull-left {float: left; }
+
+.-m-right {margin-right: 1em; }
+.-m-left {margin-left: 1em; }
+.-m-top {margin-top: 1em}
+.-m-bottom {margin-bottom: 1em}
+
+.-m2-right {margin-right: 2em; }
+.-m2-left {margin-left: 2em; }
+.-m2-top {margin-top: 2em}
+.-m2-bottom {margin-bottom: 2em}
+
+.-disabled {pointer-events: none;}
+
+.columns2 {
+  .column {float:left; width:40%; margin-right:3em;}
+}
+
+.columns3 {
+  .column {float:left; width:30%; margin-right:3em;}
+}
+
+.panel {
+  padding: 1em;
+  background: #f6f8e9; 
+  border:solid 1px #e3e8c5;
+  border-radius: 2px;
+  color: black;
+}
+
+.-panel-white {
+  background: white; 
+  border:solid 1px #d0d0d0;
+  color: black;
+}
+
+textarea {
+  border-color:#999;
+}

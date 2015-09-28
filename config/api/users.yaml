@@ -35,7 +35,7 @@ methods:
 
   login:
     params:
-      username: string
+      name: string
       password: string
     response:
       token: string

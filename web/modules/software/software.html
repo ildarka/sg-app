@@ -1,0 +1,11 @@
+<h1>
+  {{route.title}}
+</h1>
+
+<div class="software">
+<ul>
+  <li ng-repeat="s in software">
+    <span class="date">{{s.date | date : "dd.MM.yyyy"}}</span> <a href="/software/{{s.file}}" target="_blank">{{s.file}}</a>
+  </li>
+</ul>
+</div>

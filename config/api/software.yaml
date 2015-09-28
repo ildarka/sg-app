@@ -1,0 +1,9 @@
+description: Software model
+
+model:
+  date: date
+  name: string
+    
+methods:
+  list:
+    response: $ref model

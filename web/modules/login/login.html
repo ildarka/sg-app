@@ -1,0 +1,31 @@
+<div class="login" ng-controller="loginCtrl">
+
+  <div class="unautorized" ng-show="!me()">
+  <a class="pseudo-link" ng-click="model.show=!model.show">Login</a>
+  <form name="userform" ng-show="model.show" class="panel -panel-white form" ng-submit="login()" ng-class="{shake: model.error}">
+    <i class="mdi mdi-window-close -pull-right" ng-click="model.show = false"></i>
+    <div class="field">
+      <label>Пользователь</label>
+      <input ng-model="model.name" required type="text" />
+    </div>  
+    <div class="field">
+      <label>Пароль</label>
+      <input ng-model="model.password" required type="password" />
+    </div>
+    <input type="submit" value="Войти" class="-m-right" ng-class="{'-disabled':!userform.$valid}" /> 
+    <a class="pseudo-link" ng-click="register()">Регистрация</a>
+    
+    <p class="error" ng-show="model.errorregister">Это имя пользователя уже занято!</p>
+    <p ng-show="model.message">{{model.message}}</p>
+    
+  </form>
+  </div>
+
+  <div class="autorized" ng-show="me()">
+    <a class="pseudo-link" ng-click="model.show=!model.show"><i class="mdi mdi-account"></i> {{me().name}}</a>
+    <div class="panel -panel-white form"  ng-show="model.show">
+      <i class="mdi mdi-window-close -pull-right" ng-click="model.show = false"></i>
+      <a class="pseudo-link" ng-click="logout()">Выход</a>
+    </div>
+  </div>  
+</div>

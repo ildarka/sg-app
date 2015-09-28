@@ -1,0 +1,39 @@
+<html ng-app="app">
+<head>
+  <meta charset="utf-8" />
+  <base href="/" />  
+  <link rel="stylesheet" href="lib/sega2/sega2.css" />
+  <link rel="stylesheet" href="all.css" />
+</head>
+  
+<body ng-controller="appCtrl">
+  <header>
+    
+    <div class="me -pull-right" ng-include="'modules/login/login.html'"></div>
+
+    <i class="mdi mdi-beaker" style="font-size:24px; position:absolute; top:7px; left:7px;"></i>
+    
+    <ul class="menu">
+      <li ng-repeat="(url, r) in config.routes" ng-class="{active: r == route}" ng-hide="r.hidden || !ACL(r.access)"><a href="{{url}}">{{r.title}}</a></li>
+      <li>&nbsp;</li>
+    </ul>
+    
+  </header>
+
+  <main class="paper {{route.class}}">
+    
+    <article ng-view="" class="view"></article>
+    
+  </main>
+</body>
+  
+<script src="lib/angularjs/angular.js"></script>
+<script src="lib/ngstorage/ngStorage.min.js"></script>
+<script src="lib/angular-route/angular-route.min.js"></script>
+<script src="lib/angular-animate/angular-animate.min.js"></script>
+  
+<script src="config.js">;</script>
+<script src="templates.js">;</script>
+<script src="all.js">;</script>
+
+</html>
