@@ -1,31 +1,38 @@
 # sg-app
+sg-app — скелет для быстрого постороения простых web-интерфейсов на NodeJS + AngularJS.
 
-TODO: Описание …
-Принципы
+## Стек
++ Сервер: NodeJS + Express + jsonrpc-ws (Websockets)
++ База данных: PostgreSQL > 9.5
++ Транспорт: JSONRPC2 + Websockets
++ Клиент: AngularJS, Less, Bower
++ Сборка: gulp
 
-## TODO Client
-+ Рефакторинг клиентского скрипта api, для поддержки реконнектов
+## Структура папок
+'''
+/build_tasks — Преобразователь yaml в json, кодегенерация (оформить в виде npm)
+/config — Конфигурация проекта, описание API
+/database — Хранимки для БД
+/server — Серверный код
+/server/public — эта папка автогенерится
+'''
 
+## Тезисы
++ API first! Вся работа начинается с /config/config.yaml
++ Websockets
 
-## API first
-+ Описание API ./config/api/*.yaml
-+ Генерация кода (серверный + клиентский API) ./build-tasks/codegen-templates
-+ Live API testing http://localhost:3000/dev
-
-## Транспорт
-JSONRPC2 over Websockets.
-npm jsonrpc-ws
+## Плюшки
++ Первичная генерация кода, например CRUD /build-tasks/codegen-templates
++ Встроенная система пользователей с системой ролей.
++ Живое тестирование API http://localhost:3000/dev
 
 ## Данные
-Данные храняться в PostgreSQL в виде jsonb (PostgreSQL v. > 9.5).
+Данные храняться в PostgreSQL (> 9.5) в jsonb.
 Для работы с базой используется библиотека Рона Коннери massive.js
-
-## Сборка без gulp
-Использовать чистый npm
 
 ## Стили
 LESS. Sega2. Линтеры + CSSComb
 
-## Компонентный подход
+## Компонентный подход на клиенте
 AngularJS components — текущий подход
 
