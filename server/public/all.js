@@ -148,11 +148,9 @@ app.factory('api', function($rootScope, $localStorage) {
   }
   
   return function init(connection) {
-    
 
     connectStr = connection;
     connect();
-    
     
     return function api(method, params, cbk) {
       

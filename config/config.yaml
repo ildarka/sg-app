@@ -24,9 +24,14 @@ routes:
     access: superadmin aggregator.admin aggregator.user  
   /software/: 
     template: modules/software/software.html
-    title: Версии ПО
+    title: Версии ПО агрегатора
     controller: softwareCtrl
     access: superadmin aggregator.user
+  /generator/: 
+    template: modules/software/software.html
+    title: Генератор трафика
+    controller: softwareCtrl
+    access: user
   /users/: 
     template: modules/users/users.html
     title: Пользователи

@@ -4,20 +4,7 @@ TODO: Описание …
 Принципы
 
 ## TODO Client
-+ Заменить в sega2 fontawesome на materialdesignicons
 + Рефакторинг клиентского скрипта api, для поддержки реконнектов
-+ Добавить проверку перед отправкой (невалидный JSON)
-
-+ Добивить таску с вотчером за папками build-tasks и config. Действие — ребилд и рестарт приложения
-
-+ Проверить адекватность remove
-
-+ Добавить token inject 
-
-+ Механизм подписки: Subscribe, event + notification
-
-+ Хранимка для register и login
-
 
 
 ## API first
@@ -30,7 +17,7 @@ JSONRPC2 over Websockets.
 npm jsonrpc-ws
 
 ## Данные
-Данные храняться в PostgreSQL в виде jsonb (PostgreSQL v. > 9.4).
+Данные храняться в PostgreSQL в виде jsonb (PostgreSQL v. > 9.5).
 Для работы с базой используется библиотека Рона Коннери massive.js
 
 ## Сборка без gulp
