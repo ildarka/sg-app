@@ -47,10 +47,11 @@ app.factory('api', function($rootScope, $localStorage) {
   
   var tryTimeout = 100;
   var cbks = {};
-  var jsonrpc = jsonrpc2();  
+  var jsonrpc = jsonrpc2(); 
   
+  // Отменить все коллбеки
   $rootScope.$on('$routeChangeSuccess', function(scope, next, current) {
-    // Отменить все коллбеки
+    cbks = {};
   });
 
   function connect() {
@@ -87,6 +88,14 @@ app.factory('api', function($rootScope, $localStorage) {
         console.log('←', JSON.stringify(data));
         if (typeof data.id != 'undefined' && typeof cbks[data.id] === 'function') {
           $rootScope.safeApply(function() {
+            
+            // Удаление схемы пользователя если он не авторизован на сервере
+            if (data.error) {
+              if (data.error.code == -32012 && $localStorage.me) {
+                $localStorage.me = null;
+              }
+            }
+            
             cbks[data.id](data.error, data.result);
             cbks[data.id] = null;
           });

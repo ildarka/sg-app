@@ -14,10 +14,10 @@ var config = {
             "access": "superadmin aggregator.user"
         },
         "/generator/": {
-            "template": "modules/software/software.html",
+            "template": "modules/generator/generator.html",
             "title": "Генератор трафика",
-            "controller": "softwareCtrl",
-            "access": "user"
+            "controller": "generatorCtrl",
+            "class": "-nopaddings"
         },
         "/users/": {
             "template": "modules/users/users.html",
@@ -30,6 +30,28 @@ var config = {
             "title": "DEV",
             "hidden": true,
             "controller": "devCtrl"
+        }
+    },
+    "errors": {
+        "SERVER_ERROR": {
+            "code": -32001,
+            "message": "Ошибка на сервере"
+        },
+        "FORBIDDEN": {
+            "code": -32011,
+            "message": "Недостаточно прав"
+        },
+        "UNAUTORIZED": {
+            "code": -32012,
+            "message": "Пользователь неавторизован"
+        },
+        "LOGIN_FAILED": {
+            "code": -32021,
+            "message": "Неправильный логин/пароль"
+        },
+        "DUPLICATE_USER": {
+            "code": -32022,
+            "message": "Пользователь с таким именем уже существует"
         }
     },
     "api": {
@@ -198,6 +220,88 @@ var config = {
                         "date": "date",
                         "name": "string"
                     }
+                }
+            }
+        },
+        "generator": {
+            "description": "Generators",
+            "filemodel": {
+                "date": "date",
+                "name": "string",
+                "username": "string",
+                "size": "integer"
+            },
+            "genmodel": {
+                "id": "string",
+                "date": "date",
+                "name": "string",
+                "state": "string",
+                "files": "array",
+                "out": "integer",
+                "bitrate": "integer",
+                "loop": "boolean",
+                "swarm": "boolean"
+            },
+            "methods": {
+                "get": {
+                    "response": {
+                        "id": "string",
+                        "date": "date",
+                        "name": "string",
+                        "state": "string",
+                        "files": "array",
+                        "out": "integer",
+                        "bitrate": "integer",
+                        "loop": "boolean",
+                        "swarm": "boolean"
+                    }
+                },
+                "add": {
+                    "params": {
+                        "id": "string",
+                        "date": "date",
+                        "name": "string",
+                        "state": "string",
+                        "files": "array",
+                        "out": "integer",
+                        "bitrate": "integer",
+                        "loop": "boolean",
+                        "swarm": "boolean"
+                    }
+                },
+                "update": {
+                    "params": {
+                        "id": "string",
+                        "date": "date",
+                        "name": "string",
+                        "state": "string",
+                        "files": "array",
+                        "out": "integer",
+                        "bitrate": "integer",
+                        "loop": "boolean",
+                        "swarm": "boolean"
+                    }
+                },
+                "remove": {
+                    "params": {
+                        "id": "string"
+                    }
+                },
+                "getfiles": {
+                    "response": {
+                        "date": "date",
+                        "name": "string",
+                        "username": "string",
+                        "size": "integer"
+                    }
+                },
+                "removefile": {
+                    "params": {
+                        "id": "string"
+                    }
+                },
+                "uploadfile": {
+                    "response": "string"
                 }
             }
         }

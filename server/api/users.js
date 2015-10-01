@@ -27,7 +27,6 @@ var login = function(sgapp) {
   if (!sgapp.errors) {
     sgapp.db.users.login([sgapp.params.name, sgapp.params.password], function(err, res) {
       if (err) {
-        console.log(err);
         sgapp.error(err);
       } else {
         var rand = function() {
@@ -42,8 +41,9 @@ var login = function(sgapp) {
         var body = res[0].o_body;
         body.id = res[0].o_id;
         body.token = token;
+        body.time = new Date();
         sgapp.onlineusers[token] = body;
-        sgapp.send(body);
+        sgapp.send(body);        
       }
     });
   }
@@ -55,7 +55,7 @@ var logout = function(sgapp) {
   sgapp.ACL();
   
   if (!sgapp.errors) {
-    sgapp.onlineusers[sgapp.params.token] = null;
+    delete(sgapp.onlineusers[sgapp.params.token]);
     sgapp.send('OK');
   }
 };
@@ -95,7 +95,7 @@ var remove = function(sgapp) {
         sgapp.send('Removed!');
       });
   } else {
-        sgapp.error('Invalid params!');
+        sgapp.error('INVALID_PARAMS');
   }
 };
 

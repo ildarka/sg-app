@@ -11,7 +11,7 @@ BEGIN
   WHERE body->>'name' = i_name AND password = i_password AND body->>'state' = 'ACTIVE'
   INTO o_id, o_body;
 
-  IF NOT FOUND THEN RAISE 'Login failed'; END IF;
+  IF NOT FOUND THEN RAISE 'LOGIN_FAILED'; END IF;
 
 END;
 $$ LANGUAGE 'plpgsql';

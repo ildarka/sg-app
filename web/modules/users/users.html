@@ -7,7 +7,7 @@
 <div class="column">
     <ul>
       <li ng-repeat="u in users | orderBy : 'id' track by $index">
-        <div class="-pull-right">
+        <div class="-pull-right" ng-if="u.id != me().id">
           <select ng-model="u.role" ng-change="update(u)" ng-options="key as value for (key, value) in config.api.users.roles" class="role -m-right" >
           </select>  
           <a ng-click="ban(u.id)" class="pseudo-link -muted"><i class="mdi mdi-window-close"></i> Бан</a>

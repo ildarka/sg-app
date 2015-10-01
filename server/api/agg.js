@@ -60,7 +60,7 @@ var remove = function(sgapp) {
         sgapp.send('Removed!');
       });
   } else {
-        sgapp.error('Invalid params!');
+        sgapp.error('INVALID_PARAMS');
   }
 };
 
@@ -75,7 +75,7 @@ var licenseadd = function(sgapp) {
     sgapp.db['agg'].findDoc({id: sgapp.params.id}, function(err, res) {
       if (err) {
          console.log('err', err);
-         sgapp.error('Problems');
+         sgapp.error('SERVER_ERROR');
       } else {
 
         var fname = res.sn + '_' + sgapp.params.ports;

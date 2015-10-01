@@ -75,6 +75,13 @@ main {
 header {
   width: inherit;
 }
+.hidden,
+input[type="submit"].hidden {
+  display: none;
+}
+.-relative {
+  position: relative;
+}
 hr {
   height: 1px;
   border: none;
@@ -307,6 +314,65 @@ textarea {
 }
 .dev textarea.jsonerror {
   border-color: red;
+}
+
+
+input[type="search"] {
+  border-radius: 0.6em;
+}
+.scroller {
+  min-height: 48em;
+  max-height: 48em;
+  overflow-y: scroll;
+}
+.generator {
+  min-height: 48em;
+  max-height: 48em;
+  width: 100%;
+}
+.generator .tap {
+  padding-top: 3px;
+}
+.generator td {
+  width: 50%;
+  vertical-align: top;
+}
+.generator .toolbar {
+  margin-bottom: 1em;
+}
+.generator .papper {
+  position: relative;
+}
+.generator .form form {
+  margin-bottom: 0;
+}
+.generator .genname {
+  width: 100%;
+}
+.generator .date {
+  font-size: 85%;
+  color: #ccc;
+}
+.generator h2 {
+  margin: 0;
+}
+.generator h2 a {
+  color: #0067e6;
+}
+.generator .rate {
+  width: 60px;
+}
+.generator .files {
+  font-size: 85%;
+}
+.generator .files .size {
+  width: 100px;
+}
+.generator .files .name {
+  width: 300px;
+}
+.generator .files .date {
+  color: #999;
 }
 
 

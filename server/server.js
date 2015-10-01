@@ -43,6 +43,12 @@ function apifunc(rpc) {
 // Контейнер для пользователей online
 var onlineusers = {};
 
+// Удаление просроченных токенов раз в минуту
+setInterval(function clearTokens() {
+  for(var key in onlineusers) {
+    if (new Date() - onlineusers[key].time > config.server.expireToken) delete(onlineusers[key]);
+  }
+}, 60000);
 
 
 // expose API methods
@@ -73,22 +79,26 @@ function expose(server, model, method, fn) {
         },
         error: function(err) {
           this.errors++;
-          reply(err, null);
+          if (err.message in config.errors) {
+            reply(config.errors[err.message], null); 
+          } else {
+            reply(err, null);
+          }
         },
         ACL: function() {
           if (this.schema && this.schema.access) {
             if (!token) {
-              this.error('Forbbiden'); 
+              this.error(config.errors['UNAUTORIZED']); 
             } else {
               if (!this.onlineusers[token]) {
-                this.error('Forbbiden'); 
+                this.error(config.errors['UNAUTORIZED']); 
               } else {
 
                 var u = this.onlineusers[token];
                 console.log('--', u.role, this.schema.access, this.schema.access.indexOf(u.role));
                 if (this.schema.access.indexOf(u.role) == -1) {
                   console.log(4);
-                  this.error('Forbbiden'); 
+                  this.error(config.errors['FORBIDDEN']); 
                 }
               }
             }

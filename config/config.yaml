@@ -10,11 +10,31 @@ api:
   users: $ref api/users.yaml
   agg: $ref api/agg.yaml
   software: $ref api/software.yaml
+  generator: $ref api/generator.yaml
 
 # This section will be removed from client-side config
 server:
   connectionString: postgres://localhost/sgapp
+  expireToken: 600000
   
+errors:
+  SERVER_ERROR:
+    code: -32001
+    message: Ошибка на сервере
+  FORBIDDEN:
+    code: -32011
+    message: Недостаточно прав
+  UNAUTORIZED:
+    code: -32012
+    message: Пользователь неавторизован
+  LOGIN_FAILED:
+    code: -32021
+    message: Неправильный логин/пароль
+  DUPLICATE_USER:
+    code: -32022
+    message: Пользователь с таким именем уже существует
+
+
 routes:
   /: 
     template: modules/agg/agg.html
@@ -28,10 +48,10 @@ routes:
     controller: softwareCtrl
     access: superadmin aggregator.user
   /generator/: 
-    template: modules/software/software.html
+    template: modules/generator/generator.html
     title: Генератор трафика
-    controller: softwareCtrl
-    access: user
+    controller: generatorCtrl
+    class: -nopaddings
   /users/: 
     template: modules/users/users.html
     title: Пользователи

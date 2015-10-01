@@ -1,0 +1,90 @@
+
+<table class="generator"><tr>
+  <td class="paper -nopaddings">
+    <div class="scroller">
+      <div class="-paddings">
+      <div class="toolbar">
+        <input type="search" placeholder="Фильтр файлов" class="-m2-right" />
+        <a class="pseudo-link">Загрузить файл</a>
+      </div>
+      <table class="table files">
+        <thead>
+          <tr>
+            <th class="name">Имя</th>
+            <th class="size">Размер</th>
+            <th>Дата</th>
+            <th>Пользователь</th>
+          </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat="f in files">
+          <td>{{f.file}}</td>
+          <td>{{f.size}}</td>
+          <td class="-misc">{{f.date | date : "dd.MM.yyyy"}}</td>
+          <td class="-misc">{{f.username}}</td>
+        </tr>        
+        </tbody>
+      </table>
+      </div>
+    </div>
+  </td>
+  <td class="paper -nopaddings">
+    <div class="scroller">
+      <hgroup>
+        <h1>
+           {{route.title}}
+        </h1>
+
+        <button style="position: absolute; top: 30px; left:420px;" ng-click="show.form = !show.form" class="-round -yellow"><i class="mdi mdi-plus"></i></button>
+      </hgroup>
+
+      <div class="form addform clearfix" ng-show="show.form">
+        <form ng-submit="add()">
+          <input type="text" autofocus ng-model="model.name" placeholder="Название сценария" required class="genname" />
+
+          <input type="submit" class="hidden" />
+        </form>  
+      </div>
+      <div ng-repeat="s in generators | orderBy : '-id' track by $index" class="paper -relative" ng-class="{'-selected' : s.selected}" ng-click="selectGen(s)">
+
+      <div class="actions -pull-right">
+        <a ng-show="s.selected" class="pseudo-link -m-right" ng-click="remove(s.id)"><i class="mdi mdi-delete"></i> Удалить</a></li>
+        <span class="date">{{s.date|date: 'dd.MM.yyyy'}}</span>
+      </div>
+      
+        <h2>
+          <a class="pseudo-link" ng-click=""><i class="mdi mdi-play"></i>{{s.name}}</a>
+        </h2>
+        
+        <div ng-show="s.selected" class="-m-top">
+          <span class="-m-right">
+            <select ng-model="s.ratetype" ng-change="update(s)">
+              <option value="bitrate">Битрейт</option>
+              <option value="packetrate">Пакетрейт</option>
+            </select>
+
+            <input type="text" class="rate" ng-model="s.rate" ng-change="update(s)" /> 
+
+            <span ng-show="s.ratetype == 'bitrate'">Mbit/s</span>
+            <span ng-show="s.ratetype == 'packetrate'">MPPS</span>
+          </span>
+
+          Выход № <select ng-options="o.id as o.label for o in outputs" ng-model="s.output" ng-change="update(s)"></select>
+
+          <div class="-m-top" style="margin-left: -10px">
+            <span class="tap" ng-class="{'-active': s.swarm}"><a ng-click="toggle(s,'swarm')">Перемешать</a></span>
+            <span class="tap" ng-class="{'-active': s.loop}"><a ng-click="toggle(s,'loop')">Зациклить</a></span>
+          </div>
+        </div>
+          
+          
+          
+          
+        
+      </div>
+      
+    </div>
+  </td>
+</tr>
+</tbody>
+</table>

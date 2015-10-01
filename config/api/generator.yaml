@@ -1,0 +1,43 @@
+description: Generators
+
+filemodel:
+  date: date
+  name: string
+  username: string
+  size: integer
+
+genmodel:
+  id: string
+  date: date
+  name: string
+  state: string
+  files: array
+  out: integer
+  bitrate: integer
+  loop: boolean
+  swarm: boolean
+
+methods:
+  get:
+    response: $ref genmodel
+
+  add:
+    params: $ref genmodel
+
+  update:
+    params: $ref genmodel
+
+  remove:
+    params:
+      id: string
+
+  getfiles:
+    response: $ref filemodel
+
+  removefile:
+    params:
+      id: string
+
+  uploadfile:
+   response: string
+  

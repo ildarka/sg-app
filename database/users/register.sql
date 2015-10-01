@@ -11,7 +11,7 @@ begin
   -- Проверка на существование пользователя
   PERFORM 1 FROM users WHERE body->>'name' = i_name;
 
-  IF FOUND THEN RAISE 'Duplicate user'; END IF;
+  IF FOUND THEN RAISE 'DUPLICATE_USER'; END IF;
 
   -- Добавление пользователя
   INSERT INTO users(body, password) VALUES (

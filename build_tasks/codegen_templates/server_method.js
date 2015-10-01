@@ -41,13 +41,12 @@ var {{method}} = function(sgapp) {
         sgapp.send('Removed!');
       });
   } else {
-        sgapp.error('Invalid params!');
+        sgapp.error('INVALID_PARAMS');
   }
   {{else if is.login}}
   if (!sgapp.errors) {
     sgapp.db.users.login([sgapp.params.name, sgapp.params.password], function(err, res) {
       if (err) {
-        console.log(err);
         sgapp.error(err);
       } else {
         var rand = function() {
@@ -62,14 +61,15 @@ var {{method}} = function(sgapp) {
         var body = res[0].o_body;
         body.id = res[0].o_id;
         body.token = token;
+        body.time = new Date();
         sgapp.onlineusers[token] = body;
-        sgapp.send(body);
+        sgapp.send(body);        
       }
     });
   }
   {{else if is.logout}}
   if (!sgapp.errors) {
-    sgapp.onlineusers[sgapp.params.token] = null;
+    delete(sgapp.onlineusers[sgapp.params.token]);
     sgapp.send('OK');
   }
   {{else if is.register}}
@@ -120,7 +120,7 @@ var {{method}} = function(sgapp) {
     sgapp.db['{{module}}'].findDoc({id: sgapp.params.id}, function(err, res) {
       if (err) {
          console.log('err', err);
-         sgapp.error('Problems');
+         sgapp.error('SERVER_ERROR');
       } else {
 
         var fname = res.sn + '_' + sgapp.params.ports;

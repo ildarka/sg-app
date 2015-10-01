@@ -216,6 +216,107 @@ try {
   module = angular.module('templates', []);
 }
 module.run(['$templateCache', function($templateCache) {
+  $templateCache.put('modules/generator/generator.html',
+    '\n' +
+    '<table class="generator"><tr>\n' +
+    '  <td class="paper -nopaddings">\n' +
+    '    <div class="scroller">\n' +
+    '      <div class="-paddings">\n' +
+    '      <div class="toolbar">\n' +
+    '        <input type="search" placeholder="Фильтр файлов" class="-m2-right" />\n' +
+    '        <a class="pseudo-link">Загрузить файл</a>\n' +
+    '      </div>\n' +
+    '      <table class="table files">\n' +
+    '        <thead>\n' +
+    '          <tr>\n' +
+    '            <th class="name">Имя</th>\n' +
+    '            <th class="size">Размер</th>\n' +
+    '            <th>Дата</th>\n' +
+    '            <th>Пользователь</th>\n' +
+    '          </tr>\n' +
+    '        </thead>\n' +
+    '        <tbody>\n' +
+    '        <tr ng-repeat="f in files">\n' +
+    '          <td>{{f.file}}</td>\n' +
+    '          <td>{{f.size}}</td>\n' +
+    '          <td class="-misc">{{f.date | date : "dd.MM.yyyy"}}</td>\n' +
+    '          <td class="-misc">{{f.username}}</td>\n' +
+    '        </tr>        \n' +
+    '        </tbody>\n' +
+    '      </table>\n' +
+    '      </div>\n' +
+    '    </div>\n' +
+    '  </td>\n' +
+    '  <td class="paper -nopaddings">\n' +
+    '    <div class="scroller">\n' +
+    '      <hgroup>\n' +
+    '        <h1>\n' +
+    '           {{route.title}}\n' +
+    '        </h1>\n' +
+    '\n' +
+    '        <button style="position: absolute; top: 30px; left:420px;" ng-click="show.form = !show.form" class="-round -yellow"><i class="mdi mdi-plus"></i></button>\n' +
+    '      </hgroup>\n' +
+    '\n' +
+    '      <div class="form addform clearfix" ng-show="show.form">\n' +
+    '        <form ng-submit="add()">\n' +
+    '          <input type="text" autofocus ng-model="model.name" placeholder="Название сценария" required class="genname" />\n' +
+    '\n' +
+    '          <input type="submit" class="hidden" />\n' +
+    '        </form>  \n' +
+    '      </div>\n' +
+    '      <div ng-repeat="s in generators | orderBy : \'-id\' track by $index" class="paper -relative" ng-class="{\'-selected\' : s.selected}" ng-click="selectGen(s)">\n' +
+    '\n' +
+    '      <div class="actions -pull-right">\n' +
+    '        <a ng-show="s.selected" class="pseudo-link -m-right" ng-click="remove(s.id)"><i class="mdi mdi-delete"></i> Удалить</a></li>\n' +
+    '        <span class="date">{{s.date|date: \'dd.MM.yyyy\'}}</span>\n' +
+    '      </div>\n' +
+    '      \n' +
+    '        <h2>\n' +
+    '          <a class="pseudo-link" ng-click=""><i class="mdi mdi-play"></i>{{s.name}}</a>\n' +
+    '        </h2>\n' +
+    '        \n' +
+    '        <div ng-show="s.selected" class="-m-top">\n' +
+    '          <span class="-m-right">\n' +
+    '            <select ng-model="s.ratetype" ng-change="update(s)">\n' +
+    '              <option value="bitrate">Битрейт</option>\n' +
+    '              <option value="packetrate">Пакетрейт</option>\n' +
+    '            </select>\n' +
+    '\n' +
+    '            <input type="text" class="rate" ng-model="s.rate" ng-change="update(s)" /> \n' +
+    '\n' +
+    '            <span ng-show="s.ratetype == \'bitrate\'">Mbit/s</span>\n' +
+    '            <span ng-show="s.ratetype == \'packetrate\'">MPPS</span>\n' +
+    '          </span>\n' +
+    '\n' +
+    '          Выход № <select ng-options="o.id as o.label for o in outputs" ng-model="s.output" ng-change="update(s)"></select>\n' +
+    '\n' +
+    '          <div class="-m-top" style="margin-left: -10px">\n' +
+    '            <span class="tap" ng-class="{\'-active\': s.swarm}"><a ng-click="toggle(s,\'swarm\')">Перемешать</a></span>\n' +
+    '            <span class="tap" ng-class="{\'-active\': s.loop}"><a ng-click="toggle(s,\'loop\')">Зациклить</a></span>\n' +
+    '          </div>\n' +
+    '        </div>\n' +
+    '          \n' +
+    '          \n' +
+    '          \n' +
+    '          \n' +
+    '        \n' +
+    '      </div>\n' +
+    '      \n' +
+    '    </div>\n' +
+    '  </td>\n' +
+    '</tr>\n' +
+    '</tbody>\n' +
+    '</table>');
+}]);
+})();
+
+(function(module) {
+try {
+  module = angular.module('templates');
+} catch (e) {
+  module = angular.module('templates', []);
+}
+module.run(['$templateCache', function($templateCache) {
   $templateCache.put('modules/login/login.html',
     '<div class="login" ng-controller="loginCtrl">\n' +
     '\n' +
@@ -292,7 +393,7 @@ module.run(['$templateCache', function($templateCache) {
     '<div class="column">\n' +
     '    <ul>\n' +
     '      <li ng-repeat="u in users | orderBy : \'id\' track by $index">\n' +
-    '        <div class="-pull-right">\n' +
+    '        <div class="-pull-right" ng-if="u.id != me().id">\n' +
     '          <select ng-model="u.role" ng-change="update(u)" ng-options="key as value for (key, value) in config.api.users.roles" class="role -m-right" >\n' +
     '          </select>  \n' +
     '          <a ng-click="ban(u.id)" class="pseudo-link -muted"><i class="mdi mdi-window-close"></i> Бан</a>\n' +
