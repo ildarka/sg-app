@@ -20,7 +20,7 @@ app.controller("loginCtrl", function($scope, $localStorage, $location, $route) {
           $localStorage.me = res;
           $route.reload();
         }
-    });
+    }, true);
   };       
   
   $scope.register = function() {

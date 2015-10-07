@@ -15,17 +15,28 @@ input[type="search"] {border-radius: 0.6em;}
   .form form {margin-bottom: 0;}
   .genname {width: 100%;}
   .date {font-size: 85%; color: #ccc;}
+  .play {font-size: 90%; margin:0 0 0 15px; padding-left:0.5em}
+  
+  .uploadprogress {width:100%; margin-bottom:0.5em}
+  .dragover {border: solid 1px steelblue;}
   
   h2 {margin: 0}
   h2 a {color: #0067e6;}
 
   .rate {width:60px;} 
+  .scenario-files {
+    
+    div {position:relative; padding: 5px 0;}
+    div:hover {background:#eee; }
+    
+    .remove {position:absolute; right:0; top:0; z-index:20;}
+  }
+  
   
   .files {
-    font-size: 85%;
-    .size {width: 100px;}
-    .name {width: 300px;} 
-    .date {color:#999;}
+    td {cursor: pointer;}
+    .size, .date {width: 70px;}
+    .addon {color:#999; font-size:90%;}
   }
   
 }

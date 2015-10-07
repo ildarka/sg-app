@@ -1,68 +1,50 @@
+var fs = require('fs');
 var path = require('path');
+
 var express = require('express');
 var app = express();
+
+var Busboy = require('busboy');
+var ajv = require('ajv')();
 
 var JsonRpcWs = require('json-rpc-ws');
 var server = JsonRpcWs.createServer();
 
+var massive = require('massive');
+
 var config = require('./config.json');
+
 var public = path.resolve(__dirname + '/public/');
 
-
-
-app.listen(config.port, function() {
-  console.log('Webserver started on ', config.port);
-});
-
-/*
-var rpc = {
-  error: function(err) {
-    this.reply(err, null);
-  },
-  send: function(data) {
-    this.reply(null, data);
-  }
-};
-
-function apifunc(rpc) {
-// rpc contains db, send, error, model, method, methodname
-  
-      var newUser = {
-        name: rpc.params.name,
-        password: rpc.params.password,
-        state: 'NEW',
-        date: new Date()
-      }
-      
-      rpc.db.saveDoc("users", newUser, function(err, res) {
-        rpc.send("OK");
-      });
-}
-*/
-
-// Контейнер для пользователей online
+// Online users in memory
 var onlineusers = {};
 
-// Удаление просроченных токенов раз в минуту
+// Remove expired tokens every minute
 setInterval(function clearTokens() {
   for(var key in onlineusers) {
     if (new Date() - onlineusers[key].time > config.server.expireToken) delete(onlineusers[key]);
   }
 }, 60000);
 
-
-// expose API methods
+// Expose websocket jsonrpc api by API methods
 function expose(server, model, method, fn) {
     server.expose(model + '.' + method, function(params, reply) {
       
       console.log(model + '.' + method);
       
+      // Prepare token
       var token = null;
       if (params && params.token) {
         token = params.token;
         delete(params.token);
       }
       
+      // Prolongate session
+      if (onlineusers[token]) {
+        onlineusers[token].time = new Date();
+      }
+
+      // Prepare sgapp global object
       sgapp = {
         dirname: __dirname,
         params: params,
@@ -107,11 +89,24 @@ function expose(server, model, method, fn) {
           return true;
         },
         validate: function() {
-          return true;
+
+          if (this.ajv) {
+            var valid = this.ajv(this.params);
+            if (!valid) {
+              console.log('VALIDATION', this.ajv.errors);
+              this.error(config.errors['INVALID_PARAMS']);
+            }
+            return valid;
+          } else {
+            return true;  
+          }
         }
       };
       
-      //apifunc(rpc);
+      // Insert compiled jsonschema validator sgapp.ajv 
+      if (sgapp.schema && sgapp.schema.jsonschema) sgapp.ajv = ajv.compile(sgapp.schema.jsonschema);
+      //console.log('SGAPP', sgapp.schema, sgapp.ajv);
+      
       fn(sgapp);
     });
 }
@@ -131,20 +126,49 @@ for (var url in config.routes) {
   });
 };
 
+// Connect to PostgreSQL & Start websocket + http servers
+var db = massive.connectSync({connectionString : config.server.connectionString});
+if (!db) {
+  console.error('PostgreSQL "sgapp" database not found!');
+  process.exit(1);
+} else {
+  console.log('Connected to  PostgreSQL "sgapp" database');
+  server.start({ port: config.wsport }, function started () {
+    console.log('Websocket server started on port', config.wsport);
+    
+    app.listen(config.port, function() {
+      console.log('Http server started on ', config.port);
+    });
+  });
+}
+
+/*
+  Put your code here -----------------------------------
+*/
+
+// Static folders
 app.use(express.static(public));
 app.use('/software', express.static(__dirname + '/software/'));
 app.use('/license', express.static(__dirname + '/license/'));
 
-var massive = require("massive");
-
-var db = massive.connectSync({connectionString : config.server.connectionString});
-if (!db) {
-  console.error('Postgres sgapp database not found!');
-  process.exit(1);
-} else {
-  console.log('Connected to DB');
-  server.start({ port: config.wsport }, function started () {
-    console.log('Websockets started on port', config.wsport);
+// Endpoint for upload files
+app.post('/uploadFiles', function(req, res) {
+  var busboy = new Busboy({ headers: req.headers });
+  var files = 0, finished = false;
+  busboy.on('file', function (fieldname, file, filename) {
+    console.log("Uploading: " + filename);
+    ++files;
+    var fstream = fs.createWriteStream(__dirname + '/pcap/' + filename);
+    fstream.on('finish', function() {
+      if (--files === 0 && finished) {
+        res.writeHead(200, { 'Connection': 'close' });
+        res.end("");
+      }
+    });
+    file.pipe(fstream);
   });
-}
-
+  busboy.on('finish', function() {
+    finished = true;
+  });
+  return req.pipe(busboy);
+});

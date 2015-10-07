@@ -26,6 +26,7 @@ var conf = require(paths.server + 'config.json');
 
 // SG APP build tasks
 var yaml2json = require('./build_tasks/yaml2json.js');
+var jsonschema = require('./build_tasks/jsonschema.js');
 var codegen = require('./build_tasks/codegen.js');
 var sql = require('./build_tasks/sql.js');
 var rmdir = require('./build_tasks/rmdir.js');
@@ -40,13 +41,14 @@ gulp.task('default',['dev']);
   gulp.task('server:build', function() {
     // Build json
     var config = yaml2json(paths.config + 'config.yaml');
+    var config = jsonschema(config);
     
     var client_config = util._extend({}, config);
     delete client_config.server;
     
     fs.writeFileSync(paths.server + 'config.json', JSON.stringify(config, null, 4));
     fs.writeFileSync(paths.public + 'config.js', 'var config = ' + JSON.stringify(client_config, null, 4)+ ';\n');
-
+    
     // Generate server code
     codegen.generateServer(config.api, paths.server + 'api/');
   });

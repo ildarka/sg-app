@@ -9,65 +9,99 @@ roles:
   aggregator.admin: Администратор агрегаторов
 
 model:
-  id: string
-  date: date
-  name: string
-  password: string
-  state: boolean
-  role: string
-
+  description: Schema for user
+  properties:
+    id: number
+    date: date
+    name: string
+    password: string
+    role: string
+    state: 
+      enum:
+        - BAN
+        - ACTIVE
+        - NEW
+    
 defaults:
-  name: admin
-  password: 0000
-  state: true
+  name: 1
+  password: 1
+  state: ACTIVE
   role: superadmin
     
 methods:
   get:
     response:
-      id: string
+      id: number
       date: date
       name: string
-      state: boolean
+      state: string
       role: string
 
     access: superadmin
 
   login:
     params:
-      name: string
-      password: string
+      name: 
+        type: string
+        minLength: 1
+      password:
+        type: string
+        minLength: 1
+    required:
+      - name
+      - password
     response:
       token: string
-      user: $ref model
+      user: $ref model/properties
     
   logout:
     params:
       token: string
 
   update:
-    params: $ref model
+    params: $ref model/properties
     access: superadmin
 
   changePassword:
     params:
-      id: string
-      password: string
+      id:
+        type: number
+        minLength: 1      
+      password:
+        type: string
+        minLength: 1      
+    required:
+      - id
+      - password
 
   remove:
     params:
-      id: string
+      id:
+        type: number
+        minLength: 1
+    required:
+      - id      
     access: superadmin
 
   switchState:
     params:
-      id: string
-      state: boolean
+      id:
+        type: number
+        minLength: 1
+      state: $ref model/properties/state
+    required:
+      - id      
+      - state
     access: superadmin
 
   register:
     params: 
-      name: string
-      password: string
-
-
+      name:
+        type: string
+        minLength: 1      
+      password:
+        type: string
+        minLength: 1       
+    required:
+      - name
+      - password

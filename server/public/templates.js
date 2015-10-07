@@ -28,6 +28,8 @@ module.run(['$templateCache', function($templateCache) {
     '    \n' +
     '  </header>\n' +
     '\n' +
+    '  <div ng-include="\'components/messageBox/messageBox.html\'"></div>\n' +
+    '  \n' +
     '  <main class="paper {{route.class}}">\n' +
     '    \n' +
     '    <article ng-view="" class="view"></article>\n' +
@@ -39,6 +41,8 @@ module.run(['$templateCache', function($templateCache) {
     '<script src="lib/ngstorage/ngStorage.min.js"></script>\n' +
     '<script src="lib/angular-route/angular-route.min.js"></script>\n' +
     '<script src="lib/angular-animate/angular-animate.min.js"></script>\n' +
+    '<script src="lib/ng-file-upload/ng-file-upload.min.js"></script>\n' +
+    '<script src="lib/ngDraggable/ngDraggable.js"></script>\n' +
     '  \n' +
     '<script src="config.js">;</script>\n' +
     '<script src="templates.js">;</script>\n' +
@@ -46,6 +50,21 @@ module.run(['$templateCache', function($templateCache) {
     '\n' +
     '</html>\n' +
     '');
+}]);
+})();
+
+(function(module) {
+try {
+  module = angular.module('templates');
+} catch (e) {
+  module = angular.module('templates', []);
+}
+module.run(['$templateCache', function($templateCache) {
+  $templateCache.put('components/messageBox/messageBox.html',
+    '<div class="messageBox" ng-class="{error: messageBoxError}" ng-show="messageBox">\n' +
+    '  <!--i class="close mdi mdi-close"></i-->\n' +
+    '  {{messageBox}}\n' +
+    '</div>');
 }]);
 })();
 
@@ -217,30 +236,33 @@ try {
 }
 module.run(['$templateCache', function($templateCache) {
   $templateCache.put('modules/generator/generator.html',
-    '\n' +
     '<table class="generator"><tr>\n' +
-    '  <td class="paper -nopaddings">\n' +
+    '  <td class="paper -nopaddings" ngf-drop="uploadFiles($files)" class="drop-box"\n' +
+    '  ngf-drag-over-class="dragover" ngf-multiple="true" >\n' +
     '    <div class="scroller">\n' +
     '      <div class="-paddings">\n' +
     '      <div class="toolbar">\n' +
-    '        <input type="search" placeholder="Фильтр файлов" class="-m2-right" />\n' +
-    '        <a class="pseudo-link">Загрузить файл</a>\n' +
+    '        <input type="search" ng-model="filter" placeholder="Фильтр файлов" class="-m2-right" />\n' +
+    '        <a ngf-select="uploadFiles($files)" multiple="multiple" class="pseudo-link">Загрузить файл</a>\n' +
     '      </div>\n' +
+    '        \n' +
+    '      <progress ng-show="progress" class="uploadprogress" min="0" max="100" ng-attr-value="{{progress}}"></progress>\n' +
+    '  \n' +
     '      <table class="table files">\n' +
     '        <thead>\n' +
     '          <tr>\n' +
     '            <th class="name">Имя</th>\n' +
-    '            <th class="size">Размер</th>\n' +
+    '            <th>Размер</th>\n' +
     '            <th>Дата</th>\n' +
-    '            <th>Пользователь</th>\n' +
+    '            <!--th>Пользователь</th-->\n' +
     '          </tr>\n' +
     '        </thead>\n' +
     '        <tbody>\n' +
-    '        <tr ng-repeat="f in files">\n' +
-    '          <td>{{f.file}}</td>\n' +
-    '          <td>{{f.size}}</td>\n' +
-    '          <td class="-misc">{{f.date | date : "dd.MM.yyyy"}}</td>\n' +
-    '          <td class="-misc">{{f.username}}</td>\n' +
+    '        <tr ng-repeat="f in files | orderBy : \'-date\' | filter : filter">\n' +
+    '          <td><div ng-drag="true" ng-drag-data="f.file">{{f.file}}</div></td>\n' +
+    '          <td class="addon size">{{f.size | byteformat}}</td>\n' +
+    '          <td class="addon date">{{f.date | date : "dd.MM.yyyy"}}</td>\n' +
+    '          <!--td class="-misc">{{f.username}}</td-->\n' +
     '        </tr>        \n' +
     '        </tbody>\n' +
     '      </table>\n' +
@@ -264,7 +286,9 @@ module.run(['$templateCache', function($templateCache) {
     '          <input type="submit" class="hidden" />\n' +
     '        </form>  \n' +
     '      </div>\n' +
-    '      <div ng-repeat="s in generators | orderBy : \'-id\' track by $index" class="paper -relative" ng-class="{\'-selected\' : s.selected}" ng-click="selectGen(s)">\n' +
+    '      <div ng-repeat="s in generators | orderBy : \'-id\' track by $index" class="paper -relative" ng-class="{\'-selected\' : s.selected}" ng-click="selectGen(s)"\n' +
+    '      ng-drag-start="dragStart($data, $event)" ng-drop="true" ng-drop-success="addScenarioFile($data,$event,s)"\n' +
+    '      >\n' +
     '\n' +
     '      <div class="actions -pull-right">\n' +
     '        <a ng-show="s.selected" class="pseudo-link -m-right" ng-click="remove(s.id)"><i class="mdi mdi-delete"></i> Удалить</a></li>\n' +
@@ -272,10 +296,11 @@ module.run(['$templateCache', function($templateCache) {
     '      </div>\n' +
     '      \n' +
     '        <h2>\n' +
-    '          <a class="pseudo-link" ng-click=""><i class="mdi mdi-play"></i>{{s.name}}</a>\n' +
+    '          <a class="pseudo-link" contenteditable ng-model="s.name" strip-br="true" ng-enter="update(s)"></a>\n' +
     '        </h2>\n' +
     '        \n' +
-    '        <div ng-show="s.selected" class="-m-top">\n' +
+    '        <div ng-show="s.selected && s.files.length" class="-m-top">\n' +
+    '                      \n' +
     '          <span class="-m-right">\n' +
     '            <select ng-model="s.ratetype" ng-change="update(s)">\n' +
     '              <option value="bitrate">Битрейт</option>\n' +
@@ -290,13 +315,27 @@ module.run(['$templateCache', function($templateCache) {
     '\n' +
     '          Выход № <select ng-options="o.id as o.label for o in outputs" ng-model="s.output" ng-change="update(s)"></select>\n' +
     '\n' +
-    '          <div class="-m-top" style="margin-left: -10px">\n' +
+    '          <button class="-rounded -green play"><i class="mdi mdi-play"></i> Пуск</button>\n' +
+    '    \n' +
+    '          <div class="scenario-files -m-top" ng-show="s.files.length">\n' +
+    '            <h2>Файлы</h2>\n' +
+    '            <div ng-repeat="f in s.files">\n' +
+    '              <div class="remove" ng-click="removeScenarioFile(s, $index)"><i class="mdi mdi-delete"></i></div>\n' +
+    '              {{f}} \n' +
+    '            </div>\n' +
+    '          </div>\n' +
+    '          \n' +
+    '          <div class="-m-top" style="margin-left: -10px" ng-show="s.files.length">\n' +
     '            <span class="tap" ng-class="{\'-active\': s.swarm}"><a ng-click="toggle(s,\'swarm\')">Перемешать</a></span>\n' +
     '            <span class="tap" ng-class="{\'-active\': s.loop}"><a ng-click="toggle(s,\'loop\')">Зациклить</a></span>\n' +
     '          </div>\n' +
+    '                    \n' +
     '        </div>\n' +
     '          \n' +
-    '          \n' +
+    '        <div class="-m-top -muted" ng-show="s.selected && !s.files.length">\n' +
+    '          Добавьте файлы перетаскиванием из левой панели.\n' +
+    '        </div>\n' +
+    '\n' +
     '          \n' +
     '          \n' +
     '        \n' +

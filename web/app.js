@@ -1,4 +1,4 @@
-var app = angular.module("app",['ngRoute', 'ngAnimate', 'ngStorage', 'templates']);
+var app = angular.module("app",['ngRoute', 'ngAnimate', 'ngStorage', 'templates', 'ngFileUpload', 'ngDraggable']);
 
 app.controller("appCtrl", function($rootScope, $window, $location, $filter, $http, $timeout, $localStorage, api) {
 
@@ -19,6 +19,15 @@ app.controller("appCtrl", function($rootScope, $window, $location, $filter, $htt
     $window.scrollTo(0,0);
   }
 
+  $rootScope.messageError = function(err) {
+    if ($rootScope.clearMessage) $timeout.cancel($rootScope.clearMessage);
+    $rootScope.messageBox = err.message;
+    $rootScope.messageBoxError = true;
+    $rootScope.clearMessage = $timeout(function(){
+      $rootScope.messageBox = null;
+    }, 5000);
+  }
+  
   $rootScope.findRoute = function() {
     var url = $location.path();
     if (url in $rootScope.config.routes) {

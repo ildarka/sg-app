@@ -10,15 +10,22 @@ roles:
     aggregators.admin
 
 model:
-  id: string
+  id:
+    type: number
+    minLength: 1   
   date: date
   sn: string
   description: string
   license: array
 
 license:
-  id: string
-  ports: number
+  id:
+    type: number
+    minLength: 1  
+  ports:
+    type: number
+    minimum: 1
+    maximum: 64    
   mpls: boolean
   mirror: boolean
 
@@ -27,18 +34,30 @@ methods:
     access: $ref roles/read
 
   add:
-    params: $ref model
+    params: 
+      sn:
+        type: string
+        minLength: 1      
+      description: string
     access: $ref roles/write
 
   update:
     params: $ref model
+    required:
+      - id
     access: $ref roles/write
 
   remove:
     params:
-      id: string
+      id:
+        type: number
+        minLength: 1  
+    required:
+      - id
     access: $ref roles/write
 
   licenseadd:
     params: $ref license
+    required:
+      - id    
     access: $ref roles/write

@@ -64,29 +64,39 @@ var remove = function(sgapp) {
   }
 };
 
-var getfiles = function(sgapp) {
+var getFiles = function(sgapp) {
   
   sgapp.validate();
   sgapp.ACL();
   
   if (!sgapp.errors) {
-    //Put your code here
-    sgapp.send("Ok");
+    var fs = require('fs');
+    var path = sgapp.dirname + '/pcap/';
+    fs.readdir(path, function(err, res) {
+      if (err) {
+        console.log('is list', err);
+      } else {
+        var r = [];
+        console.log('res', res);
+        res.forEach(function(f, index) {
+            fs.stat(path + f, function(err, result) {
+              if (err) {
+                throw(err);
+              } else {
+                r.push({file: f, date: result.mtime, size: result.size});
+                if (r.length == res.length) {
+                  console.log('r', r, index, res.length);
+                  sgapp.send(r, index);
+                }
+              }
+            });
+        });
+      }
+    }); 
   }
 };
 
-var removefile = function(sgapp) {
-  
-  sgapp.validate();
-  sgapp.ACL();
-  
-  if (!sgapp.errors) {
-    //Put your code here
-    sgapp.send("Ok");
-  }
-};
-
-var uploadfile = function(sgapp) {
+var removeFile = function(sgapp) {
   
   sgapp.validate();
   sgapp.ACL();
@@ -102,6 +112,5 @@ module.exports.get = get;
 module.exports.add = add;
 module.exports.update = update;
 module.exports.remove = remove;
-module.exports.getfiles = getfiles;
-module.exports.removefile = removefile;
-module.exports.uploadfile = uploadfile;
+module.exports.getFiles = getFiles;
+module.exports.removeFile = removeFile;

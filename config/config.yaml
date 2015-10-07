@@ -16,8 +16,11 @@ api:
 server:
   connectionString: postgres://localhost/sgapp
   expireToken: 600000
-  
+
 errors:
+  INVALID_PARAMS:
+    code: -32602
+    message: Invalid params
   SERVER_ERROR:
     code: -32001
     message: Ошибка на сервере
@@ -33,7 +36,6 @@ errors:
   DUPLICATE_USER:
     code: -32022
     message: Пользователь с таким именем уже существует
-
 
 routes:
   /: 

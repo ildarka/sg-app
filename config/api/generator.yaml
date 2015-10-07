@@ -7,8 +7,9 @@ filemodel:
   size: integer
 
 genmodel:
-  id: string
-  date: date
+  id:
+    type: number
+    minLength: 1
   name: string
   state: string
   files: array
@@ -22,22 +23,23 @@ methods:
     response: $ref genmodel
 
   add:
-    params: $ref genmodel
+    params:
+      name: string
 
   update:
     params: $ref genmodel
 
   remove:
     params:
-      id: string
+      id:
+        type: number
+        minLength: 1
 
-  getfiles:
+  getFiles:
     response: $ref filemodel
 
-  removefile:
+  removeFile:
     params:
-      id: string
-
-  uploadfile:
-   response: string
-  
+      id:
+        type: number
+        minLength: 1

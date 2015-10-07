@@ -1,27 +1,30 @@
-
 <table class="generator"><tr>
-  <td class="paper -nopaddings">
+  <td class="paper -nopaddings" ngf-drop="uploadFiles($files)" class="drop-box"
+  ngf-drag-over-class="dragover" ngf-multiple="true" >
     <div class="scroller">
       <div class="-paddings">
       <div class="toolbar">
-        <input type="search" placeholder="Фильтр файлов" class="-m2-right" />
-        <a class="pseudo-link">Загрузить файл</a>
+        <input type="search" ng-model="filter" placeholder="Фильтр файлов" class="-m2-right" />
+        <a ngf-select="uploadFiles($files)" multiple="multiple" class="pseudo-link">Загрузить файл</a>
       </div>
+        
+      <progress ng-show="progress" class="uploadprogress" min="0" max="100" ng-attr-value="{{progress}}"></progress>
+  
       <table class="table files">
         <thead>
           <tr>
             <th class="name">Имя</th>
-            <th class="size">Размер</th>
+            <th>Размер</th>
             <th>Дата</th>
-            <th>Пользователь</th>
+            <!--th>Пользователь</th-->
           </tr>
         </thead>
         <tbody>
-        <tr ng-repeat="f in files">
-          <td>{{f.file}}</td>
-          <td>{{f.size}}</td>
-          <td class="-misc">{{f.date | date : "dd.MM.yyyy"}}</td>
-          <td class="-misc">{{f.username}}</td>
+        <tr ng-repeat="f in files | orderBy : '-date' | filter : filter">
+          <td><div ng-drag="true" ng-drag-data="f.file">{{f.file}}</div></td>
+          <td class="addon size">{{f.size | byteformat}}</td>
+          <td class="addon date">{{f.date | date : "dd.MM.yyyy"}}</td>
+          <!--td class="-misc">{{f.username}}</td-->
         </tr>        
         </tbody>
       </table>
@@ -45,7 +48,9 @@
           <input type="submit" class="hidden" />
         </form>  
       </div>
-      <div ng-repeat="s in generators | orderBy : '-id' track by $index" class="paper -relative" ng-class="{'-selected' : s.selected}" ng-click="selectGen(s)">
+      <div ng-repeat="s in generators | orderBy : '-id' track by $index" class="paper -relative" ng-class="{'-selected' : s.selected}" ng-click="selectGen(s)"
+      ng-drag-start="dragStart($data, $event)" ng-drop="true" ng-drop-success="addScenarioFile($data,$event,s)"
+      >
 
       <div class="actions -pull-right">
         <a ng-show="s.selected" class="pseudo-link -m-right" ng-click="remove(s.id)"><i class="mdi mdi-delete"></i> Удалить</a></li>
@@ -53,10 +58,11 @@
       </div>
       
         <h2>
-          <a class="pseudo-link" ng-click=""><i class="mdi mdi-play"></i>{{s.name}}</a>
+          <a class="pseudo-link" contenteditable ng-model="s.name" strip-br="true" ng-enter="update(s)"></a>
         </h2>
         
-        <div ng-show="s.selected" class="-m-top">
+        <div ng-show="s.selected && s.files.length" class="-m-top">
+                      
           <span class="-m-right">
             <select ng-model="s.ratetype" ng-change="update(s)">
               <option value="bitrate">Битрейт</option>
@@ -71,13 +77,27 @@
 
           Выход № <select ng-options="o.id as o.label for o in outputs" ng-model="s.output" ng-change="update(s)"></select>
 
-          <div class="-m-top" style="margin-left: -10px">
+          <button class="-rounded -green play"><i class="mdi mdi-play"></i> Пуск</button>
+    
+          <div class="scenario-files -m-top" ng-show="s.files.length">
+            <h2>Файлы</h2>
+            <div ng-repeat="f in s.files">
+              <div class="remove" ng-click="removeScenarioFile(s, $index)"><i class="mdi mdi-delete"></i></div>
+              {{f}} 
+            </div>
+          </div>
+          
+          <div class="-m-top" style="margin-left: -10px" ng-show="s.files.length">
             <span class="tap" ng-class="{'-active': s.swarm}"><a ng-click="toggle(s,'swarm')">Перемешать</a></span>
             <span class="tap" ng-class="{'-active': s.loop}"><a ng-click="toggle(s,'loop')">Зациклить</a></span>
           </div>
+                    
         </div>
           
-          
+        <div class="-m-top -muted" ng-show="s.selected && !s.files.length">
+          Добавьте файлы перетаскиванием из левой панели.
+        </div>
+
           
           
         

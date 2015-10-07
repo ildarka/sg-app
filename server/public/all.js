@@ -1,4 +1,4 @@
-var app = angular.module("app",['ngRoute', 'ngAnimate', 'ngStorage', 'templates']);
+var app = angular.module("app",['ngRoute', 'ngAnimate', 'ngStorage', 'templates', 'ngFileUpload', 'ngDraggable']);
 
 app.controller("appCtrl", function($rootScope, $window, $location, $filter, $http, $timeout, $localStorage, api) {
 
@@ -19,6 +19,15 @@ app.controller("appCtrl", function($rootScope, $window, $location, $filter, $htt
     $window.scrollTo(0,0);
   }
 
+  $rootScope.messageError = function(err) {
+    if ($rootScope.clearMessage) $timeout.cancel($rootScope.clearMessage);
+    $rootScope.messageBox = err.message;
+    $rootScope.messageBoxError = true;
+    $rootScope.clearMessage = $timeout(function(){
+      $rootScope.messageBox = null;
+    }, 5000);
+  }
+  
   $rootScope.findRoute = function() {
     var url = $location.path();
     if (url in $rootScope.config.routes) {
@@ -56,11 +65,40 @@ app.factory('api', function($rootScope, $localStorage) {
           console.error('No method in request');
         }
 
+        var preparedParams = {};
+        if (params.token) {
+          preparedParams.token = params.token;
+        }
+        
+        // Sanitize params & cast types
+        if (method && params && config && config.api) {
+          var mm = method.split('.');
+          if (config.api[mm[0]]) {
+            if (config.api[mm[0]].methods && config.api[mm[0]].methods[mm[1]] && config.api[mm[0]].methods[mm[1]].params) {
+              var proto = config.api[mm[0]].methods[mm[1]].params;
+              
+              for (var key in proto) {
+                switch (proto[key]) {
+                  case 'number':
+                    preparedParams[key] = +params[key];
+                    break;
+                  case 'boolean':
+                    preparedParams[key] = !!params[key];
+                    break;
+                  default:
+                    preparedParams[key] = params[key];
+                }
+                
+              }
+            }
+          }
+        }
+        
         var o = {
           method: method,
           id: id++,
           jsonrpc: '2.0',
-          params: params
+          params: preparedParams
         };
 
         return o;
@@ -94,11 +132,13 @@ app.factory('api', function($rootScope, $localStorage) {
   
   var tryTimeout = 100;
   var cbks = {};
+  var silents = {};
   var jsonrpc = jsonrpc2(); 
   
   // Отменить все коллбеки
   $rootScope.$on('$routeChangeSuccess', function(scope, next, current) {
     cbks = {};
+    silents = {};
   });
 
   function connect() {
@@ -141,6 +181,8 @@ app.factory('api', function($rootScope, $localStorage) {
               if (data.error.code == -32012 && $localStorage.me) {
                 $localStorage.me = null;
               }
+              
+              if (!silents[data.id]) $rootScope.messageError(data.error);
             }
             
             cbks[data.id](data.error, data.result);
@@ -161,7 +203,7 @@ app.factory('api', function($rootScope, $localStorage) {
     connectStr = connection;
     connect();
     
-    return function api(method, params, cbk) {
+    return function api(method, params, cbk, silent) {
       
       if (state) {
           if (typeof params == 'function') {
@@ -179,6 +221,10 @@ app.factory('api', function($rootScope, $localStorage) {
           if (typeof cbk === 'function') {
             cbks[c.id] = cbk;
           }
+        
+          if (typeof silent !== 'undefined') {
+            silents[c.id] = true;
+          } 
           
           console.log('→', JSON.stringify(c));
           ws.send(JSON.stringify(c));
@@ -193,21 +239,39 @@ app.factory('api', function($rootScope, $localStorage) {
 });
 
 
-
-    app.filter('formatedParams', function() {
+/* filters for dev */
+app.filter('formatedParams', function() {
       return function(o) {
         var object = angular.copy(o);
         for(var key in object) {
           if (object[key] = "number") object[key] = '';
         }
         return JSON.stringify(object, null, 4);
-    }});
+}});
 
-    app.filter('JSON', function() {
+app.filter('JSON', function() {
       return function(o) {
         return JSON.stringify(o, null, 4);
-    }});
+}});
 
+/* Округление */
+function precise_round(num, decimals) { return (+num).toFixed(decimals) }
+
+
+/* Форматирование размера (Мб, Кб, ..). Вход: байты */
+app.filter('byteformat', function() {
+  return function(size) {
+    var symbol = ['Б', 'кБ', 'МБ', 'ГБ'], base = 1024, rank = 0;
+    // size >= 0
+    size = (typeof size == 'undefined' || +size<=0 ) ? 0 : size;
+    // выяснить наибольший rank размера
+    if (size!=0) {for (var i=1; i <= symbol.length - 1; i++) if (size >= base) {size = size / base; rank = i} }
+    // округлить размер до первого знака после запятой (с учётом rank'а)
+    size = (rank>=1) ? precise_round(size, 1) : precise_round(size, 0);
+    // вывести вместе с единицей измерения
+    return (size.toString().replace(/(\d)(?=(\d{3})+([^\d]|$))/g, '$1 ').replace('.', ',') + '\u00A0' + symbol[rank]);
+  };
+});
 
 //  Angular роутинг --------------------------------------------------------------
 app.config(function($routeProvider, $locationProvider, $controllerProvider, $compileProvider, $filterProvider, $provide) {
@@ -267,6 +331,52 @@ app.directive("autoGrow", ['$window', function($window){
         }
     };
 }]);
+
+app.directive('contenteditable', function () {
+      return {
+          restrict: 'A', // only activate on element attribute
+          require: '?ngModel', // get a hold of NgModelController
+          link: function (scope, element, attrs, ngModel) {
+              if (!ngModel) return; // do nothing if no ng-model
+
+              // Specify how UI should be updated
+              ngModel.$render = function () {
+                  element.html(ngModel.$viewValue || '');
+              };
+
+              // Listen for change events to enable binding
+              element.on('blur keyup change', function () {
+                  scope.$apply(readViewText);
+              });
+
+              // No need to initialize, AngularJS will initialize the text based on ng-model attribute
+
+              // Write data to the model
+              function readViewText() {
+                  var html = element.html();
+                  // When we clear the content editable the browser leaves a <br> behind
+                  // If strip-br attribute is provided then we strip this out
+                  if (attrs.stripBr && html == '<br>') {
+                      html = '';
+                  }
+                  ngModel.$setViewValue(html);
+              }
+          }
+      };
+  });
+
+app.directive('ngEnter', function () {
+    return function (scope, element, attrs) {
+        element.bind("keydown keypress", function (event) {
+            if(event.which === 13) {
+                scope.$apply(function (){
+                    scope.$eval(attrs.ngEnter);
+                });
+                event.preventDefault();
+            }
+        });
+    };
+});
 
 app.controller("aggCtrl", function($scope) {
   
@@ -443,12 +553,16 @@ app.controller("aggCtrl", function($scope) {
 
 
 
-app.controller("generatorCtrl", function($scope) {
+
+app.controller("generatorCtrl", function($scope, Upload) {
+  
+  // Initial models
   var model = {
     name: null,
     ratetype: 'bitrate',
     rate: 10,
-    output: 1
+    output: 1,
+    files: []
   };
   
   var outputs = [
@@ -458,62 +572,119 @@ app.controller("generatorCtrl", function($scope) {
     {id: 4, label: 4}
   ];
   
+  // Toggle «loop» and «swarm» parameters 
+  $scope.toggle= function(model, what) {
+    model[what] = !model[what];
+    $scope.update(model);
+  };
+  
+  // Get PCAP-files from server
   $scope.getFiles = function() {
-    $scope.api('generator.getfiles', function(err, result) {
+    $scope.api('generator.getFiles', function(err, result) {
       $scope.files = result;
     });
   };
 
+  // Get scenarios
   $scope.get = function(cbk) {
     $scope.api('generator.get', function(err, result) {
-      $scope.generators = result;
       if (typeof cbk == 'function') cbk(result);
+      $scope.generators = result;
     });
-  }
+  };
 
+  // Remove scenario
   $scope.remove = function(id) {
     if (confirm('Вы действительно хотите удалить сценарий?')) {
       $scope.api('generator.remove', {id: id}, function(err, result) {
         $scope.get();
       });
     }
-  }
-  
-  $scope.toggle= function(m, what) {
-    m[what] = !m[what];
-    $scope.update(m);
   };
 
-  $scope.selectGen= function(a) {
-    $scope.generators.forEach(function(i) {
-      if (a == i) i.selected = true; else i.selected = false;
-    });
-  };
-  
+  // Add scenario
   $scope.add = function(id) {
     $scope.api('generator.add', $scope.model, function(err, result) {
       $scope.get();
       $scope.model = angular.copy(model);
       $scope.show.form = false;
     });
+  };  
+  
+  // Select active scenario
+  $scope.selectGen = function(a) {
+    $scope.update(a);
+    $scope.generators.forEach(function(i) {
+      if (a == i) i.selected = true; else i.selected = false;
+    });
+    $scope.currentGen = angular.copy(a);
+  };
+  
+  // Update scenario on server
+  $scope.update = function(model) {
+    if ($scope.currentGen && !angular.equals(model, $scope.currentGen) && $scope.currentGen.id == model.id) {
+      var m = angular.copy(model);
+      m.selected = false;
+      $scope.api('generator.update', m, function(err, result) {
+        $scope.get(function(result) {
+          result.forEach(function(i) {
+            if (i.id == model.id) {
+              i.selected = true;
+            }
+          });
+        });
+      });      
+    }
   };
 
-  $scope.update = function(model) {
-    var m = angular.copy(model);
-    m.selected = false;
-    $scope.api('generator.update', m, function(err, result) {
-      $scope.get();
-    });
+  $scope.dragStart = function(data, ev) {
+    var el = angular.element(ev.element[0]);
+    el.addClass('-absolute');
   };
   
+  // Add file to scenario by DnD
+  $scope.addScenarioFile = function(file, ev, s) {
+    $scope.selectGen(s);
+    //console.log('---', file, ev, s);
+    var el = angular.element(ev.element[0]);
+    el.removeClass('-absolute');
+    if (!s.files) s.files = [];
+    if (s.files.every(function(i) {return i != file})) {
+      s.files.push(file);
+    }
+    $scope.update(s);
+  };
   
-  // Init
+  // Remove file from scenario
+  $scope.removeScenarioFile = function(model, index) {
+    model.files.splice(index, 1);
+    $scope.update(model);
+  };
+  
+  // uploadFiles to server
+  $scope.uploadFiles = function (files) {
+    if (files && files.length) {
+      Upload.upload({url: 'uploadFiles/', data: {file: files}}).then(function (resp) {
+            console.log('Success ' + resp.config.data.file.name + 'uploaded. Response: ' + resp.data);
+            $scope.getFiles();
+            $scope.progress = 0;
+        }, function (resp) {
+            console.log('Error status: ' + resp.status);
+        }, function (evt) {
+            var progressPercentage = parseInt(100.0 * evt.loaded / evt.total);
+            $scope.progress = progressPercentage;
+            console.log('progress: ' + progressPercentage + '% ' + evt.config.data.file.name);
+        });
+    }
+  };
+
+  // Init --------------
   $scope.getFiles();
   $scope.get();
   
   $scope.model = angular.copy(model);
   $scope.outputs = angular.copy(outputs);
-  
+  $scope.progress = 0;
 
   
 });
@@ -541,7 +712,7 @@ app.controller("loginCtrl", function($scope, $localStorage, $location, $route) {
           $localStorage.me = res;
           $route.reload();
         }
-    });
+    }, true);
   };       
   
   $scope.register = function() {

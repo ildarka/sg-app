@@ -33,6 +33,10 @@ var config = {
         }
     },
     "errors": {
+        "INVALID_PARAMS": {
+            "code": -32602,
+            "message": "Invalid params"
+        },
         "SERVER_ERROR": {
             "code": -32001,
             "message": "Ошибка на сервере"
@@ -64,86 +68,274 @@ var config = {
                 "aggregator.admin": "Администратор агрегаторов"
             },
             "model": {
-                "id": "string",
-                "date": "date",
-                "name": "string",
-                "password": "string",
-                "state": "boolean",
-                "role": "string"
+                "description": "Schema for user",
+                "properties": {
+                    "id": "number",
+                    "date": "date",
+                    "name": "string",
+                    "password": "string",
+                    "role": "string",
+                    "state": {
+                        "enum": [
+                            "BAN",
+                            "ACTIVE",
+                            "NEW"
+                        ]
+                    }
+                }
             },
             "defaults": {
-                "name": "admin",
-                "password": 0,
-                "state": true,
+                "name": 1,
+                "password": 1,
+                "state": "ACTIVE",
                 "role": "superadmin"
             },
             "methods": {
                 "get": {
                     "response": {
-                        "id": "string",
+                        "id": "number",
                         "date": "date",
                         "name": "string",
-                        "state": "boolean",
+                        "state": "string",
                         "role": "string"
                     },
                     "access": "superadmin"
                 },
                 "login": {
                     "params": {
-                        "name": "string",
-                        "password": "string"
+                        "name": {
+                            "type": "string",
+                            "minLength": 1
+                        },
+                        "password": {
+                            "type": "string",
+                            "minLength": 1
+                        }
                     },
+                    "required": [
+                        "name",
+                        "password"
+                    ],
                     "response": {
                         "token": "string",
                         "user": {
-                            "id": "string",
+                            "id": "number",
                             "date": "date",
                             "name": "string",
                             "password": "string",
-                            "state": "boolean",
-                            "role": "string"
+                            "role": "string",
+                            "state": {
+                                "enum": [
+                                    "BAN",
+                                    "ACTIVE",
+                                    "NEW"
+                                ]
+                            }
                         }
+                    },
+                    "jsonschema": {
+                        "type": "object",
+                        "properties": {
+                            "name": {
+                                "type": "string",
+                                "minLength": 1
+                            },
+                            "password": {
+                                "type": "string",
+                                "minLength": 1
+                            }
+                        },
+                        "required": [
+                            "name",
+                            "password"
+                        ]
                     }
                 },
                 "logout": {
                     "params": {
                         "token": "string"
+                    },
+                    "jsonschema": {
+                        "type": "object",
+                        "properties": {
+                            "token": {
+                                "type": "string"
+                            }
+                        }
                     }
                 },
                 "update": {
                     "params": {
-                        "id": "string",
+                        "id": "number",
                         "date": "date",
                         "name": "string",
                         "password": "string",
-                        "state": "boolean",
-                        "role": "string"
+                        "role": "string",
+                        "state": {
+                            "enum": [
+                                "BAN",
+                                "ACTIVE",
+                                "NEW"
+                            ]
+                        }
                     },
-                    "access": "superadmin"
+                    "access": "superadmin",
+                    "jsonschema": {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "type": "number"
+                            },
+                            "date": {
+                                "type": "string"
+                            },
+                            "name": {
+                                "type": "string"
+                            },
+                            "password": {
+                                "type": "string"
+                            },
+                            "role": {
+                                "type": "string"
+                            },
+                            "state": {
+                                "enum": [
+                                    "BAN",
+                                    "ACTIVE",
+                                    "NEW"
+                                ]
+                            }
+                        }
+                    }
                 },
                 "changePassword": {
                     "params": {
-                        "id": "string",
-                        "password": "string"
+                        "id": {
+                            "type": "number",
+                            "minLength": 1
+                        },
+                        "password": {
+                            "type": "string",
+                            "minLength": 1
+                        }
+                    },
+                    "required": [
+                        "id",
+                        "password"
+                    ],
+                    "jsonschema": {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "type": "number",
+                                "minLength": 1
+                            },
+                            "password": {
+                                "type": "string",
+                                "minLength": 1
+                            }
+                        },
+                        "required": [
+                            "id",
+                            "password"
+                        ]
                     }
                 },
                 "remove": {
                     "params": {
-                        "id": "string"
+                        "id": {
+                            "type": "number",
+                            "minLength": 1
+                        }
                     },
-                    "access": "superadmin"
+                    "required": [
+                        "id"
+                    ],
+                    "access": "superadmin",
+                    "jsonschema": {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "type": "number",
+                                "minLength": 1
+                            }
+                        },
+                        "required": [
+                            "id"
+                        ]
+                    }
                 },
                 "switchState": {
                     "params": {
-                        "id": "string",
-                        "state": "boolean"
+                        "id": {
+                            "type": "number",
+                            "minLength": 1
+                        },
+                        "state": {
+                            "enum": [
+                                "BAN",
+                                "ACTIVE",
+                                "NEW"
+                            ]
+                        }
                     },
-                    "access": "superadmin"
+                    "required": [
+                        "id",
+                        "state"
+                    ],
+                    "access": "superadmin",
+                    "jsonschema": {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "type": "number",
+                                "minLength": 1
+                            },
+                            "state": {
+                                "enum": [
+                                    "BAN",
+                                    "ACTIVE",
+                                    "NEW"
+                                ]
+                            }
+                        },
+                        "required": [
+                            "id",
+                            "state"
+                        ]
+                    }
                 },
                 "register": {
                     "params": {
-                        "name": "string",
-                        "password": "string"
+                        "name": {
+                            "type": "string",
+                            "minLength": 1
+                        },
+                        "password": {
+                            "type": "string",
+                            "minLength": 1
+                        }
+                    },
+                    "required": [
+                        "name",
+                        "password"
+                    ],
+                    "jsonschema": {
+                        "type": "object",
+                        "properties": {
+                            "name": {
+                                "type": "string",
+                                "minLength": 1
+                            },
+                            "password": {
+                                "type": "string",
+                                "minLength": 1
+                            }
+                        },
+                        "required": [
+                            "name",
+                            "password"
+                        ]
                     }
                 }
             }
@@ -155,15 +347,25 @@ var config = {
                 "write": "superadmin aggregators.admin"
             },
             "model": {
-                "id": "string",
+                "id": {
+                    "type": "number",
+                    "minLength": 1
+                },
                 "date": "date",
                 "sn": "string",
                 "description": "string",
                 "license": "array"
             },
             "license": {
-                "id": "string",
-                "ports": "number",
+                "id": {
+                    "type": "number",
+                    "minLength": 1
+                },
+                "ports": {
+                    "type": "number",
+                    "minimum": 1,
+                    "maximum": 64
+                },
                 "mpls": "boolean",
                 "mirror": "boolean"
             },
@@ -173,38 +375,131 @@ var config = {
                 },
                 "add": {
                     "params": {
-                        "id": "string",
-                        "date": "date",
-                        "sn": "string",
-                        "description": "string",
-                        "license": "array"
+                        "sn": {
+                            "type": "string",
+                            "minLength": 1
+                        },
+                        "description": "string"
                     },
-                    "access": "superadmin aggregators.admin"
+                    "access": "superadmin aggregators.admin",
+                    "jsonschema": {
+                        "type": "object",
+                        "properties": {
+                            "sn": {
+                                "type": "string",
+                                "minLength": 1
+                            },
+                            "description": {
+                                "type": "string"
+                            }
+                        }
+                    }
                 },
                 "update": {
                     "params": {
-                        "id": "string",
+                        "id": {
+                            "type": "number",
+                            "minLength": 1
+                        },
                         "date": "date",
                         "sn": "string",
                         "description": "string",
                         "license": "array"
                     },
-                    "access": "superadmin aggregators.admin"
+                    "required": [
+                        "id"
+                    ],
+                    "access": "superadmin aggregators.admin",
+                    "jsonschema": {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "type": "number",
+                                "minLength": 1
+                            },
+                            "date": {
+                                "type": "string"
+                            },
+                            "sn": {
+                                "type": "string"
+                            },
+                            "description": {
+                                "type": "string"
+                            },
+                            "license": {
+                                "type": "array"
+                            }
+                        },
+                        "required": [
+                            "id"
+                        ]
+                    }
                 },
                 "remove": {
                     "params": {
-                        "id": "string"
+                        "id": {
+                            "type": "number",
+                            "minLength": 1
+                        }
                     },
-                    "access": "superadmin aggregators.admin"
+                    "required": [
+                        "id"
+                    ],
+                    "access": "superadmin aggregators.admin",
+                    "jsonschema": {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "type": "number",
+                                "minLength": 1
+                            }
+                        },
+                        "required": [
+                            "id"
+                        ]
+                    }
                 },
                 "licenseadd": {
                     "params": {
-                        "id": "string",
-                        "ports": "number",
+                        "id": {
+                            "type": "number",
+                            "minLength": 1
+                        },
+                        "ports": {
+                            "type": "number",
+                            "minimum": 1,
+                            "maximum": 64
+                        },
                         "mpls": "boolean",
                         "mirror": "boolean"
                     },
-                    "access": "superadmin aggregators.admin"
+                    "required": [
+                        "id"
+                    ],
+                    "access": "superadmin aggregators.admin",
+                    "jsonschema": {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "type": "number",
+                                "minLength": 1
+                            },
+                            "ports": {
+                                "type": "number",
+                                "minimum": 1,
+                                "maximum": 64
+                            },
+                            "mpls": {
+                                "type": "boolean"
+                            },
+                            "mirror": {
+                                "type": "boolean"
+                            }
+                        },
+                        "required": [
+                            "id"
+                        ]
+                    }
                 }
             }
         },
@@ -232,8 +527,10 @@ var config = {
                 "size": "integer"
             },
             "genmodel": {
-                "id": "string",
-                "date": "date",
+                "id": {
+                    "type": "number",
+                    "minLength": 1
+                },
                 "name": "string",
                 "state": "string",
                 "files": "array",
@@ -245,8 +542,10 @@ var config = {
             "methods": {
                 "get": {
                     "response": {
-                        "id": "string",
-                        "date": "date",
+                        "id": {
+                            "type": "number",
+                            "minLength": 1
+                        },
                         "name": "string",
                         "state": "string",
                         "files": "array",
@@ -258,21 +557,23 @@ var config = {
                 },
                 "add": {
                     "params": {
-                        "id": "string",
-                        "date": "date",
-                        "name": "string",
-                        "state": "string",
-                        "files": "array",
-                        "out": "integer",
-                        "bitrate": "integer",
-                        "loop": "boolean",
-                        "swarm": "boolean"
+                        "name": "string"
+                    },
+                    "jsonschema": {
+                        "type": "object",
+                        "properties": {
+                            "name": {
+                                "type": "string"
+                            }
+                        }
                     }
                 },
                 "update": {
                     "params": {
-                        "id": "string",
-                        "date": "date",
+                        "id": {
+                            "type": "number",
+                            "minLength": 1
+                        },
                         "name": "string",
                         "state": "string",
                         "files": "array",
@@ -280,14 +581,56 @@ var config = {
                         "bitrate": "integer",
                         "loop": "boolean",
                         "swarm": "boolean"
+                    },
+                    "jsonschema": {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "type": "number",
+                                "minLength": 1
+                            },
+                            "name": {
+                                "type": "string"
+                            },
+                            "state": {
+                                "type": "string"
+                            },
+                            "files": {
+                                "type": "array"
+                            },
+                            "out": {
+                                "type": "integer"
+                            },
+                            "bitrate": {
+                                "type": "integer"
+                            },
+                            "loop": {
+                                "type": "boolean"
+                            },
+                            "swarm": {
+                                "type": "boolean"
+                            }
+                        }
                     }
                 },
                 "remove": {
                     "params": {
-                        "id": "string"
+                        "id": {
+                            "type": "number",
+                            "minLength": 1
+                        }
+                    },
+                    "jsonschema": {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "type": "number",
+                                "minLength": 1
+                            }
+                        }
                     }
                 },
-                "getfiles": {
+                "getFiles": {
                     "response": {
                         "date": "date",
                         "name": "string",
@@ -295,13 +638,22 @@ var config = {
                         "size": "integer"
                     }
                 },
-                "removefile": {
+                "removeFile": {
                     "params": {
-                        "id": "string"
+                        "id": {
+                            "type": "number",
+                            "minLength": 1
+                        }
+                    },
+                    "jsonschema": {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "type": "number",
+                                "minLength": 1
+                            }
+                        }
                     }
-                },
-                "uploadfile": {
-                    "response": "string"
                 }
             }
         }

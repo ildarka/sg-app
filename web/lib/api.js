@@ -9,11 +9,40 @@ app.factory('api', function($rootScope, $localStorage) {
           console.error('No method in request');
         }
 
+        var preparedParams = {};
+        if (params.token) {
+          preparedParams.token = params.token;
+        }
+        
+        // Sanitize params & cast types
+        if (method && params && config && config.api) {
+          var mm = method.split('.');
+          if (config.api[mm[0]]) {
+            if (config.api[mm[0]].methods && config.api[mm[0]].methods[mm[1]] && config.api[mm[0]].methods[mm[1]].params) {
+              var proto = config.api[mm[0]].methods[mm[1]].params;
+              
+              for (var key in proto) {
+                switch (proto[key]) {
+                  case 'number':
+                    preparedParams[key] = +params[key];
+                    break;
+                  case 'boolean':
+                    preparedParams[key] = !!params[key];
+                    break;
+                  default:
+                    preparedParams[key] = params[key];
+                }
+                
+              }
+            }
+          }
+        }
+        
         var o = {
           method: method,
           id: id++,
           jsonrpc: '2.0',
-          params: params
+          params: preparedParams
         };
 
         return o;
@@ -47,11 +76,13 @@ app.factory('api', function($rootScope, $localStorage) {
   
   var tryTimeout = 100;
   var cbks = {};
+  var silents = {};
   var jsonrpc = jsonrpc2(); 
   
   // Отменить все коллбеки
   $rootScope.$on('$routeChangeSuccess', function(scope, next, current) {
     cbks = {};
+    silents = {};
   });
 
   function connect() {
@@ -94,6 +125,8 @@ app.factory('api', function($rootScope, $localStorage) {
               if (data.error.code == -32012 && $localStorage.me) {
                 $localStorage.me = null;
               }
+              
+              if (!silents[data.id]) $rootScope.messageError(data.error);
             }
             
             cbks[data.id](data.error, data.result);
@@ -114,7 +147,7 @@ app.factory('api', function($rootScope, $localStorage) {
     connectStr = connection;
     connect();
     
-    return function api(method, params, cbk) {
+    return function api(method, params, cbk, silent) {
       
       if (state) {
           if (typeof params == 'function') {
@@ -132,6 +165,10 @@ app.factory('api', function($rootScope, $localStorage) {
           if (typeof cbk === 'function') {
             cbks[c.id] = cbk;
           }
+        
+          if (typeof silent !== 'undefined') {
+            silents[c.id] = true;
+          } 
           
           console.log('→', JSON.stringify(c));
           ws.send(JSON.stringify(c));
