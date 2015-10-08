@@ -17,12 +17,19 @@ app.factory('api', function($rootScope, $localStorage) {
         // Sanitize params & cast types
         if (method && params && config && config.api) {
           var mm = method.split('.');
+          var type;
           if (config.api[mm[0]]) {
             if (config.api[mm[0]].methods && config.api[mm[0]].methods[mm[1]] && config.api[mm[0]].methods[mm[1]].params) {
               var proto = config.api[mm[0]].methods[mm[1]].params;
               
               for (var key in proto) {
-                switch (proto[key]) {
+                if (typeof proto[key] == 'object' && proto[key].type) {
+                  type = proto[key].type;
+                } else {
+                  type = proto[key];
+                }
+                
+                switch (type) {
                   case 'number':
                     preparedParams[key] = +params[key];
                     break;

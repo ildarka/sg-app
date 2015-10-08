@@ -6,16 +6,13 @@ var get = function(sgapp) {
   sgapp.ACL();
   
   // Get data from Postgres
-  
-  if (!sgapp.errors) {
-    if (!sgapp.db['generator']) {
-        sgapp.send([]);
-    } else {
-      sgapp.db['generator'].findDoc("*", {order: "created_at desc"}, function(err, res) {
-        res = res || [];
-        sgapp.send(res);
-      });
-    }
+  if (!sgapp.db['generator']) {
+    sgapp.send([]);
+  } else {
+    sgapp.db['generator'].findDoc("*", {order: "created_at desc"}, function(err, res) {
+      res = res || [];
+      sgapp.send(res);
+    });
   }
 };
 
@@ -27,13 +24,16 @@ var add = function(sgapp) {
   // Add object to Postgres
   var params = sgapp.params;
    
+  // Date hack with now()
   if (sgapp.schema.params.date && !params.date) {
     params.date = new Date();
   }
    
-  sgapp.db.saveDoc('generator', params, function(err, res) {
-    sgapp.send('ADD OK!');
-  });
+  if (!sgapp.errors) {
+    sgapp.db.saveDoc('generator', params, function(err, res) {
+      sgapp.send('ADD OK!');
+    });
+  }
 };
 
 var update = function(sgapp) {
@@ -42,11 +42,11 @@ var update = function(sgapp) {
   sgapp.ACL();
   
   // Update object in Postgres
-  var params = sgapp.params;
-
-  sgapp.db.saveDoc('generator', params, function(err, res){
-    sgapp.send('Update OK!');
-  });
+  if (!sgapp.errors) {
+    sgapp.db.saveDoc('generator', sgapp.params, function(err, res){
+      sgapp.send('Update OK!');
+    });
+  }
 };
 
 var remove = function(sgapp) {
@@ -55,12 +55,10 @@ var remove = function(sgapp) {
   sgapp.ACL();
   
   // Manual remove object in Postgres
-  if (sgapp.params.id) {
+  if (!sgapp.errors) {
     sgapp.db.run("delete from generator where id=$1", [+sgapp.params.id], function(err, res) {
-        sgapp.send('Removed!');
-      });
-  } else {
-        sgapp.error('INVALID_PARAMS');
+      sgapp.send('Removed!');
+    });
   }
 };
 
